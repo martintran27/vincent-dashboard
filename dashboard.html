@@ -7,7 +7,7 @@
 <style>
   :root {
     /* Notion light palette so the embed blends into the page */
-    --bg: #fff; --card: #f7f7f5; --ink: #37352f; --ink-2: #787774; --ink-3: #a5a29c;
+    --bg: #fff; --card: #fff; --ink: #37352f; --ink-2: #787774; --ink-3: #a5a29c;
     --line: #e9e9e7; --chip: #ebebea; --dark: #191919; --lime: #d2f56a; --late: #e5484d;
     --r: 20px; --gap: 14px;
   }
@@ -26,12 +26,12 @@
   h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; }
   .sub { color: var(--ink-2); margin-top: 4px; }
   .pills { display: flex; gap: 6px; flex-wrap: wrap; }
-  .pill { background: var(--card); border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 500; }
+  .pill { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 500; }
   .pill:hover { background: var(--ink); color: #fff; }
 
   .grid { display: grid; grid-template-columns: minmax(250px, .9fr) minmax(0, 1.9fr) minmax(270px, 1fr); gap: var(--gap); min-height: 0; }
   .col { display: flex; flex-direction: column; gap: var(--gap); min-height: 0; min-width: 0; }
-  .card { background: var(--card); border-radius: var(--r); padding: 18px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; }
   .grow { flex: 1; min-height: 0; display: flex; flex-direction: column; }
   .scroll { flex: 1; min-height: 0; overflow-y: auto; margin: 0 -8px; padding: 0 8px; scrollbar-width: thin; }
   .label { font-size: 12px; font-weight: 500; color: var(--ink-3); letter-spacing: .04em; text-transform: uppercase; }
@@ -52,7 +52,7 @@
   .navi-top img { width: 36px; height: 36px; border-radius: 10px; background: var(--chip); }
   .quote { font-size: 15px; font-weight: 500; line-height: 1.4; margin-top: 12px; }
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
-  .stat { background: var(--chip); border-radius: 14px; padding: 10px 12px; }
+  .stat { border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
   .stat b { display: block; font-size: 24px; font-weight: 600; letter-spacing: -0.02em; }
 
   /* Hero */
@@ -92,7 +92,7 @@
 
   /* Upcoming */
   .up { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 10px; align-items: center; padding: 7px 0; }
-  .day { background: var(--chip); border-radius: 12px; text-align: center; padding: 5px 0; line-height: 1.1; }
+  .day { border: 1px solid var(--line); border-radius: 12px; text-align: center; padding: 5px 0; line-height: 1.1; }
   .day b { display: block; font-size: 16px; font-weight: 600; }
   .day span { font-size: 10px; color: var(--ink-3); text-transform: uppercase; }
   .up .t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; font-size: 13px; }
