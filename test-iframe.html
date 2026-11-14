@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Notion Embed Simulation</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #f7f7f5;
+      color: #37352f;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    }
+    .notion-container {
+      max-width: 1260px;
+      margin: 0 auto;
+    }
+    .notion-header {
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #37352f;
+    }
+    .notion-frame {
+      border: 1px solid rgba(55, 53, 47, 0.16);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+      background: #ffffff;
+    }
+    iframe {
+      width: 100%;
+      height: 940px;
+      border: none;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="notion-container">
+    <div class="notion-header">
+      <span>📄</span> Vincent's Workspace / <strong>Dashboard (Embedded)</strong>
+    </div>
+    <div class="notion-frame">
+      <iframe src="/index.html" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-downloads"></iframe>
+    </div>
+  </div>
+</body>
+</html>

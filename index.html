@@ -1,0 +1,2893 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light" data-font="large">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Vincent Trần · Grok Bot Mission Control</title>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       xAI GROK BOT DESIGN SYSTEM - NATIVE LIGHT PALETTE (DEFAULT)
+       Designers: John Bai, Peng Zheng (SpaceXSI / xAI)
+       ========================================================================== */
+    :root {
+      /* Temporal Wallpaper Gradient (Crisp Light Silk) */
+      --grok-wallpaper: radial-gradient(130% 100% at 50% 0%, #ffffff 0%, #edf1f7 50%, #e2e7f0 100%);
+      
+      /* Light Surface Tokens (Grok Bot Canonical Light) */
+      --fig-window-bg: #ffffff;
+      --fig-sidebar: #f6f6f8;
+      --fig-panel: #ffffff;
+      --fig-card: #f9fafb;
+      --fig-card-hover: #f0f2f5;
+      --fig-card-subtle: #f4f5f7;
+
+      --fig-ink: #0d0d0d;
+      --fig-ink-80: rgba(13, 13, 13, 0.80);
+      --fig-ink-60: rgba(13, 13, 13, 0.60);
+      --fig-ink-40: rgba(13, 13, 13, 0.40);
+      --fig-ink-15: rgba(0, 0, 0, 0.08);
+      --fig-ink-10: rgba(0, 0, 0, 0.04);
+
+      --fig-bubble-user: #0d0d0d;
+      --fig-on-bubble: #ffffff;
+      --fig-bubble-bot: #f2f3f5;
+
+      /* Grok Semantic Accents */
+      --fig-purple-accent: #7c3aed;  /* Bot Computer Active indicator */
+      --fig-purple-glow: rgba(124, 58, 237, 0.15);
+      --fig-green-text: #059669;    /* 100% Complete / Active */
+      --fig-amber-accent: #d97706;  /* 60-99% / Warning */
+      --fig-orange-accent: #ea580c; /* 1-59% */
+      --fig-red-accent: #dc2626;    /* 0% / Overdue / Blocked */
+
+      --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+      --base-font-size: 15px;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-xl: 18px;
+      --radius-window: 20px;
+      --radius-pill: 9999px;
+
+      --trans-fast: 0.15s ease;
+      --trans-smooth: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Grok Bot Dark Mode (Alternative) */
+    html[data-theme="dark"] {
+      --grok-wallpaper: radial-gradient(130% 100% at 50% 0%, #1a1c23 0%, #0c0d11 60%, #060709 100%);
+      
+      --fig-window-bg: #111317;
+      --fig-sidebar: #16181d;
+      --fig-panel: #1b1e24;
+      --fig-card: #22262e;
+      --fig-card-hover: #292e38;
+      --fig-card-subtle: #191b21;
+
+      --fig-ink: #f4f5f7;
+      --fig-ink-80: rgba(244, 245, 247, 0.80);
+      --fig-ink-60: rgba(244, 245, 247, 0.60);
+      --fig-ink-40: rgba(244, 245, 247, 0.40);
+      --fig-ink-15: rgba(255, 255, 255, 0.08);
+      --fig-ink-10: rgba(255, 255, 255, 0.04);
+
+      --fig-bubble-user: #000000;
+      --fig-on-bubble: #ffffff;
+      --fig-bubble-bot: #22262e;
+
+      --fig-purple-accent: #8b5cf6;
+      --fig-purple-glow: rgba(139, 92, 246, 0.25);
+      --fig-green-text: #10b981;
+      --fig-amber-accent: #f59e0b;
+      --fig-orange-accent: #f97316;
+      --fig-red-accent: #ef4444;
+    }
+
+    /* Font Size Presets */
+    html[data-font="medium"] { --base-font-size: 14px; }
+    html[data-font="large"] { --base-font-size: 15.5px; }
+    html[data-font="xlarge"] { --base-font-size: 17.5px; }
+
+    /* Universal Reset & Notion Iframe Safeguards */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      background: var(--grok-wallpaper);
+      background-attachment: fixed;
+      color: var(--fig-ink);
+      font-family: var(--font-sans);
+      font-size: var(--base-font-size);
+      line-height: 1.5;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Desktop Window Wrapper */
+    .grok-desktop-wrapper {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px 20px 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      .grok-desktop-wrapper {
+        padding: 8px 6px 30px 6px;
+      }
+    }
+
+    /* ==========================================================================
+       MACOS NATIVE WINDOW CONTAINER
+       ========================================================================== */
+    .grok-window-frame {
+      width: 100%;
+      background: var(--fig-window-bg);
+      border: 1px solid var(--fig-ink-15);
+      border-radius: var(--radius-window);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45), 0 4px 16px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: var(--trans-smooth);
+    }
+
+    /* Window Chrome Header (44px) */
+    .window-titlebar {
+      height: 48px;
+      background: var(--fig-sidebar);
+      border-bottom: 1px solid var(--fig-ink-15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      user-select: none;
+    }
+
+    .traffic-lights {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .traffic-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 0.5px solid rgba(0, 0, 0, 0.2);
+    }
+    .traffic-red { background: #ff5f56; }
+    .traffic-yellow { background: #ffbd2e; }
+    .traffic-green { background: #27c93f; }
+
+    .window-center-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--fig-ink);
+    }
+
+    .computer-active-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: var(--radius-pill);
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--fig-purple-accent);
+      font-size: 0.72rem;
+      font-weight: 600;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .computer-active-badge .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--fig-purple-accent);
+      box-shadow: 0 0 6px var(--fig-purple-accent);
+      animation: pulseGlow 1.8s infinite ease-in-out;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(0.9); opacity: 0.5; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+
+    .titlebar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-grok-sm {
+      background: var(--fig-card);
+      border: 1px solid var(--fig-ink-15);
+      color: var(--fig-ink);
+      padding: 5px 12px;
+      border-radius: var(--radius-md);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--trans-fast);
+    }
+
+    .btn-grok-sm:hover {
+      background: var(--fig-card-hover);
+      border-color: var(--fig-ink-40);
+    }
+
+    .btn-grok-primary {
+      background: var(--fig-ink);
+      color: var(--fig-window-bg);
+      border-color: var(--fig-ink);
+      font-weight: 600;
+    }
+
+    .btn-grok-primary:hover {
+      opacity: 0.9;
+    }
+
+    /* ==========================================================================
+       THREE-COLUMN WORKSPACE ARCHITECTURE (GROK BOT CORE)
+       ========================================================================== */
+    .grok-workspace-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr 340px;
+      min-height: 820px;
+      background: var(--fig-window-bg);
+    }
+
+    @media (max-width: 1180px) {
+      .grok-workspace-grid {
+        grid-template-columns: 260px 1fr;
+      }
+      .col-routines-preview {
+        display: none; /* Collapses to tab/toggle on smaller widths */
+      }
+    }
+
+    @media (max-width: 820px) {
+      .grok-workspace-grid {
+        grid-template-columns: 1fr;
+      }
+      .col-bot-roster {
+        display: none;
+      }
+      .col-bot-roster.mobile-show {
+        display: flex;
+      }
+    }
+
+    /* ==========================================================================
+       COLUMN 1: BOT ROSTER SIDEBAR (DOMAINS AS PERSISTENT AGENTS)
+       ========================================================================== */
+    .col-bot-roster {
+      background: var(--fig-sidebar);
+      border-right: 1px solid var(--fig-ink-15);
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .sidebar-section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--fig-ink-40);
+      padding: 0 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .roster-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .roster-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: var(--trans-fast);
+      position: relative;
+      border: 1px solid transparent;
+    }
+
+    .roster-item:hover {
+      background: var(--fig-card-subtle);
+    }
+
+    .roster-item.active {
+      background: var(--fig-panel);
+      border-color: var(--fig-ink-15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 2.5D GEOMETRIC AVATAR WITH EXPRESSIVE EYES */
+    .bot-avatar-3d {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      flex-shrink: 0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .roster-item:hover .bot-avatar-3d {
+      transform: translateY(-2px) scale(1.05);
+    }
+
+    /* 3D Cube / Facet Shading */
+    .avatar-facet {
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .avatar-facet::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%);
+    }
+
+    /* Expressive Blinking Eyes */
+    .bot-eyes {
+      display: flex;
+      gap: 5px;
+      z-index: 2;
+    }
+
+    .bot-eye {
+      width: 4px;
+      height: 7px;
+      background: #0d0d0d;
+      border-radius: 2px;
+      animation: botBlink 4.5s infinite ease-in-out;
+    }
+
+    .bot-eyes.eyes-light .bot-eye {
+      background: #ffffff;
+    }
+
+    @keyframes botBlink {
+      0%, 92%, 100% { transform: scaleY(1); }
+      96% { transform: scaleY(0.1); }
+    }
+
+    /* Bot Roster Meta */
+    .roster-meta {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .roster-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .roster-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--fig-ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .roster-progress-badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--fig-ink-60);
+    }
+
+    .roster-status-snippet {
+      font-size: 0.76rem;
+      color: var(--fig-ink-60);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-dot-sm {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================================
+       COLUMN 2: MAIN MISSION TIMELINE & WORKSPACE
+       ========================================================================== */
+    .col-main-timeline {
+      background: var(--fig-panel);
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      gap: 24px;
+      overflow-y: auto;
+    }
+
+    @media (max-width: 640px) {
+      .col-main-timeline {
+        padding: 16px 12px;
+        gap: 18px;
+      }
+    }
+
+    /* Grok Greeting Banner */
+    .grok-header-banner {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--fig-ink-15);
+    }
+
+    .grok-greeting-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--fig-ink);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .grok-greeting-sub {
+      font-size: 0.88rem;
+      color: var(--fig-ink-60);
+      margin-top: 4px;
+    }
+
+    /* TELEMETRY PILL METRICS (Streak, Hoàn thành, Quá hạn) */
+    .grok-telemetry-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 640px) {
+      .grok-telemetry-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .telemetry-card-grok {
+      background: var(--fig-card);
+      border: 1px solid var(--fig-ink-15);
+      border-radius: var(--radius-lg);
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: var(--trans-fast);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .telemetry-card-grok:hover {
+      border-color: var(--fig-ink-40);
+      transform: translateY(-1px);
+    }
+
+    .telemetry-tag-grok {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--fig-ink-40);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .telemetry-num-grok {
+      font-family: var(--font-mono);
+      font-size: 2.1rem;
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--fig-ink);
+    }
+
+    .telemetry-desc-grok {
+      font-size: 0.75rem;
+      color: var(--fig-ink-60);
+    }
+
+    .telemetry-card-grok.card-overdue.has-overdue {
+      border-color: rgba(239, 68, 68, 0.4);
+      background: linear-gradient(180deg, rgba(239, 68, 68, 0.08) 0%, var(--fig-card) 100%);
+    }
+    .telemetry-card-grok.card-overdue.has-overdue .telemetry-num-grok {
+      color: var(--fig-red-accent);
+    }
+
+    /* HETEROGENEOUS INLINE CARD: "LÀM NGAY" (APPROVAL & IMMEDIATE ACTION) */
+    .grok-action-card {
+      background: var(--fig-card);
+      border: 1px solid var(--fig-ink-15);
+      border-radius: var(--radius-xl);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+
+    .action-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .action-agent-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .action-agent-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .action-agent-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--fig-ink);
+    }
+
+    .action-status-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      letter-spacing: 0.04em;
+    }
+
+    .pill-urgent {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--fig-red-accent);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .pill-startup {
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--fig-purple-accent);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .action-task-body {
+      font-size: 1.15rem;
+      font-weight: 700;
+      line-height: 1.35;
+      color: var(--fig-ink);
+    }
+
+    .action-meta-sub {
+      font-size: 0.82rem;
+      color: var(--fig-ink-60);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-top: 4px;
+    }
+
+    .btn-grok-allow {
+      background: var(--fig-ink);
+      color: var(--fig-window-bg);
+      border: none;
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--trans-fast);
+    }
+
+    .btn-grok-allow:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .btn-grok-deny {
+      background: transparent;
+      color: var(--fig-ink-80);
+      border: 1px solid var(--fig-ink-15);
+      padding: 8px 16px;
+      border-radius: var(--radius-pill);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--trans-fast);
+    }
+
+    .btn-grok-deny:hover {
+      background: var(--fig-card-hover);
+      border-color: var(--fig-ink-40);
+    }
+
+    /* ==========================================================================
+       SECTION 3.2: 3 VIỆC CHÍNH HÔM NAY (TOP 3 FOCUS)
+       ========================================================================== */
+    .grok-section-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .grok-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .grok-section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--fig-ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .top-three-stack {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 960px) {
+      .top-three-stack {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .grok-focus-item {
+      background: var(--fig-card);
+      border: 1px solid var(--fig-ink-15);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 120px;
+      transition: var(--trans-fast);
+    }
+
+    .grok-focus-item:hover {
+      border-color: var(--fig-ink-40);
+      background: var(--fig-card-hover);
+    }
+
+    .grok-focus-item.done {
+      opacity: 0.5;
+    }
+    .grok-focus-item.done .focus-item-title {
+      text-decoration: line-through;
+    }
+
+    .focus-item-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    /* Grok Native Checkbox */
+    .grok-check {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 1.5px solid var(--fig-ink-40);
+      border-radius: 6px;
+      background: transparent;
+      cursor: pointer;
+      display: grid;
+      place-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+      transition: var(--trans-fast);
+    }
+
+    .grok-check:hover {
+      border-color: var(--fig-ink);
+    }
+
+    .grok-check:checked {
+      background: var(--fig-green-text);
+      border-color: var(--fig-green-text);
+    }
+
+    .grok-check:checked::after {
+      content: '✓';
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .focus-item-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--fig-ink);
+    }
+
+    .focus-item-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      padding-top: 6px;
+      border-top: 1px solid var(--fig-ink-10);
+    }
+
+    /* ==========================================================================
+       SECTION 3.3 & 4: TIẾN ĐỘ THEO MẢNG (CHUNKY PROGRESS WITH 100% CONTRAST)
+       ========================================================================== */
+    .grok-progress-container {
+      background: var(--fig-card);
+      border: 1px solid var(--fig-ink-15);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .progress-top-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .progress-bars-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .progress-bar-row {
+      display: grid;
+      grid-template-columns: 160px 1fr 80px;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      background: var(--fig-card-subtle);
+      border: 1px solid var(--fig-ink-10);
+      transition: var(--trans-fast);
+    }
+
+    .progress-bar-row:hover {
+      border-color: var(--fig-ink-15);
+      background: var(--fig-card-hover);
+    }
+
+    @media (max-width: 640px) {
+      .progress-bar-row {
+        grid-template-columns: 1fr auto;
+        row-gap: 8px;
+      }
+      .progress-track-cell {
+        grid-column: span 2;
+        order: 3;
+      }
+    }
+
+    .domain-badge-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow: hidden;
+    }
+
+    .domain-avatar-mini {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.65rem;
+    }
+
+    .domain-title-text {
+      font-weight: 700;
+      font-size: 0.92rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--fig-ink);
+    }
+
+    /* Chunky, High-contrast Progress Bar */
+    .progress-track-cell {
+      width: 100%;
+    }
+
+    .chunky-track {
+      width: 100%;
+      height: 18px;
+      background: var(--fig-panel);
+      border: 1px solid var(--fig-ink-40);
+      border-radius: 5px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Distinct Pattern for Black & White Inversion */
+    .chunky-track::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 5px,
+        rgba(255, 255, 255, 0.04) 5px,
+        rgba(255, 255, 255, 0.04) 10px
+      );
+      pointer-events: none;
+    }
+
+    .chunky-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Strict Colors by Level */
+    .lvl-100 { background: var(--fig-green-text); }
+    .lvl-60 { background: var(--fig-amber-accent); }
+    .lvl-1 { background: var(--fig-orange-accent); }
+    .lvl-0 { background: transparent; border: 1.5px dashed var(--fig-red-accent); }
+
+    .progress-number-cell {
+      text-align: right;
+      font-family: var(--font-mono);
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .p-green { color: var(--fig-green-text); }
+    .p-amber { color: var(--fig-amber-accent); }
+    .p-orange { color: var(--fig-orange-accent); }
+    .p-red { color: var(--fig-red-accent); }
+
+    /* Special row for priority startup with 0 tasks (Thanh Long) */
+    .row-priority-startup-empty {
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      background: rgba(139, 92, 246, 0.05);
+    }
+
+    /* ==========================================================================
+       SECTION 3.4: BẢNG VIỆC (TASKS LIST & KANBAN)
+       ========================================================================== */
+    .grok-tasks-wrapper {
+      background: var(--fig-card);
+      border: 1px solid var(--fig-ink-15);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .tasks-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .filter-pills-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pill-filter {
+      background: var(--fig-card-subtle);
+      border: 1px solid var(--fig-ink-15);
+      color: var(--fig-ink-60);
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--trans-fast);
+      user-select: none;
+    }
+
+    .pill-filter:hover {
+      color: var(--fig-ink);
+      border-color: var(--fig-ink-40);
+    }
+
+    .pill-filter.active {
+      background: var(--fig-ink);
+      color: var(--fig-window-bg);
+      border-color: var(--fig-ink);
+    }
+
+    .pill-filter.active-danger {
+      background: var(--fig-red-accent);
+      color: #ffffff;
+      border-color: var(--fig-red-accent);
+    }
+
+    .grok-select {
+      background: var(--fig-card-subtle);
+      color: var(--fig-ink);
+      border: 1px solid var(--fig-ink-15);
+      padding: 5px 10px;
+      border-radius: var(--radius-md);
+      font-size: 0.78rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Task Rows */
+    .task-rows-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .task-row-item {
+      display: grid;
+      grid-template-columns: 32px 1fr 140px 100px 140px 60px;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--fig-panel);
+      border: 1px solid var(--fig-ink-10);
+      border-radius: var(--radius-md);
+      transition: var(--trans-fast);
+    }
+
+    .task-row-item:hover {
+      border-color: var(--fig-ink-15);
+      background: var(--fig-card-hover);
+    }
+
+    .task-row-item.overdue {
+      border-left: 3px solid var(--fig-red-accent);
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, var(--fig-panel) 100%);
+    }
+
+    .task-row-item.done {
+      opacity: 0.45;
+    }
+    .task-row-item.done .t-name {
+      text-decoration: line-through;
+    }
+
+    .t-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--fig-ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .t-notes {
+      font-size: 0.74rem;
+      color: var(--fig-ink-40);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chip-prio {
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 0.72rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .prio-cao { background: rgba(239, 68, 68, 0.15); color: var(--fig-red-accent); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .prio-vua { background: rgba(245, 158, 11, 0.15); color: var(--fig-amber-accent); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .prio-thap { background: var(--fig-ink-10); color: var(--fig-ink-60); border: 1px solid var(--fig-ink-15); }
+
+    @media (max-width: 860px) {
+      .task-row-item {
+        grid-template-columns: 28px 1fr auto;
+      }
+      .col-hide-mobile {
+        display: none;
+      }
+    }
+
+    /* Kanban Board */
+    .kanban-board-grok {
+      display: none;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .kanban-board-grok.show {
+      display: grid;
+    }
+
+    .kanban-col-grok {
+      background: var(--fig-panel);
+      border: 1px solid var(--fig-ink-10);
+      border-radius: var(--radius-lg);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .kanban-header-grok {
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--fig-ink-15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .kanban-card-grok {
+      background: var(--fig-card);
+      border: 1px solid var(--fig-ink-10);
+      border-radius: var(--radius-md);
+      padding: 10px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: var(--trans-fast);
+    }
+
+    .kanban-card-grok:hover {
+      border-color: var(--fig-ink-40);
+    }
+
+    /* ==========================================================================
+       COLUMN 3: BOT SCREEN & ROUTINES (RIGHT PANEL)
+       ========================================================================== */
+    .col-routines-preview {
+      background: var(--fig-sidebar);
+      border-left: 1px solid var(--fig-ink-15);
+      padding: 18px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      overflow-y: auto;
+    }
+
+    /* Mini Live Screen Preview */
+    .bot-screen-preview {
+      background: var(--fig-panel);
+      border: 1px solid var(--fig-ink-15);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .screen-header-bar {
+      height: 28px;
+      background: var(--fig-card-subtle);
+      border-bottom: 1px solid var(--fig-ink-10);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      font-size: 0.72rem;
+      color: var(--fig-ink-60);
+      font-weight: 600;
+    }
+
+    .screen-viewport-content {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: var(--fig-window-bg);
+      min-height: 110px;
+    }
+
+    .screen-runtime-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: var(--fig-purple-accent);
+      font-weight: 600;
+    }
+
+    /* Routines & Habits Section */
+    .routine-card-item {
+      background: var(--fig-panel);
+      border: 1px solid var(--fig-ink-10);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: var(--trans-fast);
+    }
+
+    .routine-card-item:hover {
+      border-color: var(--fig-ink-15);
+    }
+
+    .routine-trigger-text {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--fig-ink);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .routine-action-text {
+      font-size: 0.74rem;
+      color: var(--fig-ink-60);
+    }
+
+    /* Habit Days Row */
+    .habit-pills-row {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    .habit-day-pill {
+      background: var(--fig-card);
+      border: 1px solid var(--fig-ink-10);
+      border-radius: 6px;
+      padding: 6px 2px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      user-select: none;
+    }
+
+    .habit-day-pill.active {
+      background: var(--fig-green-text);
+      color: #ffffff;
+      border-color: var(--fig-green-text);
+    }
+
+    .habit-day-pill.is-today {
+      border-color: var(--fig-purple-accent);
+    }
+
+    /* ==========================================================================
+       MODALS: SETTINGS & ADD/EDIT TASK
+       ========================================================================== */
+    .grok-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(12px);
+      z-index: 1000;
+      display: none;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .grok-modal-overlay.open {
+      display: grid;
+    }
+
+    .grok-modal-window {
+      background: var(--fig-panel);
+      border: 1px solid var(--fig-ink-15);
+      border-radius: var(--radius-xl);
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 22px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--fig-ink-15);
+    }
+
+    .form-field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-field-group label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--fig-ink-40);
+    }
+
+    .grok-input {
+      background: var(--fig-card);
+      border: 1px solid var(--fig-ink-15);
+      color: var(--fig-ink);
+      padding: 9px 12px;
+      border-radius: var(--radius-md);
+      font-size: 0.88rem;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .grok-input:focus {
+      border-color: var(--fig-purple-accent);
+    }
+
+    #celebrationCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Particle / Confetti Canvas -->
+  <canvas id="celebrationCanvas"></canvas>
+
+  <div class="grok-desktop-wrapper">
+    <!-- MACOS NATIVE WINDOW CONTAINER -->
+    <div class="grok-window-frame">
+
+      <!-- WINDOW CHROME HEADER -->
+      <div class="window-titlebar">
+        <div class="traffic-lights">
+          <div class="traffic-dot traffic-red" title="Đóng"></div>
+          <div class="traffic-dot traffic-yellow" title="Thu nhỏ"></div>
+          <div class="traffic-dot traffic-green" title="Phóng to"></div>
+        </div>
+
+        <div class="window-center-title">
+          <span>Vincent Trần</span>
+          <span style="color: var(--fig-ink-40);">/</span>
+          <span class="computer-active-badge">
+            <span class="dot"></span>
+            <span>GROK BOT ACTIVE</span>
+          </span>
+        </div>
+
+        <div class="titlebar-actions">
+          <button class="btn-grok-sm btn-grok-primary" id="btnOpenAddTask">
+            + Thêm việc
+          </button>
+          <button class="btn-grok-sm" id="btnToggleKanban" title="Đổi giao diện Danh sách / Cột Kanban">
+            <span id="kanbanIcon">▤</span> <span id="kanbanLabel">Cột</span>
+          </button>
+          <button class="btn-grok-sm" id="btnOpenSettings" title="Cài đặt Grok Bot">
+            ⚙
+          </button>
+        </div>
+      </div>
+
+      <!-- THREE-COLUMN WORKSPACE GRID -->
+      <div class="grok-workspace-grid">
+
+        <!-- ==================================================================
+             COLUMN 1: BOT ROSTER SIDEBAR (DOMAINS AS PERSISTENT AGENTS)
+             ================================================================== -->
+        <aside class="col-bot-roster" id="colBotRoster">
+          <div class="sidebar-section-title">
+            <span>BOT ROSTER (6 AGENTS)</span>
+            <span style="font-size: 0.68rem; cursor: pointer;" onclick="openSettingsModal()">QUẢN LÝ</span>
+          </div>
+
+          <div class="roster-list" id="botRosterList">
+            <!-- Rendered dynamically with 2.5D Avatars and expressive blinking eyes -->
+          </div>
+
+          <!-- Archived Bots Section -->
+          <div style="margin-top: auto; padding-top: 14px; border-top: 1px solid var(--fig-ink-15);">
+            <div class="sidebar-section-title" style="margin-bottom: 6px;">
+              <span>ARCHIVED (3)</span>
+            </div>
+            <div style="font-size: 0.74rem; color: var(--fig-ink-40); padding: 0 8px;">
+              Events, Cá nhân, Agency nhỏ (lưu lịch sử).
+            </div>
+          </div>
+        </aside>
+
+        <!-- ==================================================================
+             COLUMN 2: MAIN MISSION TIMELINE & WORKSPACE
+             ================================================================== -->
+        <main class="col-main-timeline">
+
+          <!-- Grok Header Banner -->
+          <div class="grok-header-banner">
+            <div>
+              <div class="grok-greeting-title">
+                <span>Chào Vincent.</span>
+              </div>
+              <div class="grok-greeting-sub" id="grokStatusMessage">
+                Quét toàn bộ 6 Bot: 5 việc đang quá hạn. Đừng né việc khó, xử lý dứt điểm.
+              </div>
+            </div>
+            <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--fig-ink-40);" id="currentDateDisplay">
+              Thứ Bảy, 14/11/2026
+            </div>
+          </div>
+
+          <!-- TELEMETRY NUMBERS (STREAK, HOÀN THÀNH, QUÁ HẠN) -->
+          <div class="grok-telemetry-row">
+            <!-- STREAK -->
+            <div class="telemetry-card-grok">
+              <div class="telemetry-tag-grok">
+                <span>STREAK</span>
+                <span>⚡</span>
+              </div>
+              <div class="telemetry-num-grok" id="metricStreakVal">0</div>
+              <div class="telemetry-desc-grok" id="metricStreakSub">Chuỗi ngày xong 3 việc</div>
+            </div>
+
+            <!-- HOÀN THÀNH -->
+            <div class="telemetry-card-grok">
+              <div class="telemetry-tag-grok">
+                <span>HOÀN THÀNH</span>
+                <span>✓</span>
+              </div>
+              <div class="telemetry-num-grok" id="metricDoneVal">0/11</div>
+              <div class="telemetry-desc-grok" id="metricDoneSub">0% toàn bộ công việc</div>
+            </div>
+
+            <!-- QUÁ HẠN -->
+            <div class="telemetry-card-grok card-overdue" id="cardOverdue">
+              <div class="telemetry-tag-grok">
+                <span>QUÁ HẠN</span>
+                <span>⚠</span>
+              </div>
+              <div class="telemetry-num-grok" id="metricOverdueVal">5</div>
+              <div class="telemetry-desc-grok" id="metricOverdueSub">5 việc trễ deadline</div>
+            </div>
+          </div>
+
+          <!-- HETEROGENEOUS CARD: "LÀM NGAY" (APPROVAL / IMMEDIATE ACTION) -->
+          <div class="grok-action-card" id="cardActionNow">
+            <div class="action-card-header">
+              <div class="action-agent-badge">
+                <div class="action-agent-avatar" id="actionNowAvatar" style="background: #10b981;">
+                  <span style="font-size: 13px;">🐲</span>
+                </div>
+                <div>
+                  <div class="action-agent-title" id="actionNowAgentName">Thanh Long Lead Bot</div>
+                  <div style="font-size: 0.72rem; color: var(--fig-ink-40);" id="actionNowRole">Startup Cốt Lõi</div>
+                </div>
+              </div>
+              <span class="action-status-pill pill-startup" id="actionNowTag">ƯU TIÊN SỐ 1</span>
+            </div>
+
+            <div class="action-task-body" id="actionNowTitle">
+              Thanh Long chưa có việc nào! Đừng né việc khó, tạo task đầu tiên ngay.
+            </div>
+
+            <div class="action-meta-sub" id="actionNowMeta">
+              <span>Đột phá startup cốt lõi của Vincent Trần.</span>
+            </div>
+
+            <div class="action-btn-row">
+              <button class="btn-grok-allow" id="btnActionNowDone">
+                + Tạo việc cho Thanh Long
+              </button>
+              <button class="btn-grok-deny" id="btnActionNowPin">
+                📌 Ghim việc khác
+              </button>
+            </div>
+          </div>
+
+          <!-- ==============================================================
+               SECTION 3.2: 3 VIỆC CHÍNH HÔM NAY (TOP 3 FOCUS)
+               ============================================================== -->
+          <div class="grok-section-wrap">
+            <div class="grok-section-header">
+              <div class="grok-section-title">
+                <span>🎯</span>
+                <span>3 Việc chính hôm nay</span>
+              </div>
+              <span style="font-family: var(--font-mono); font-size: 0.78rem; font-weight: 700; color: var(--fig-purple-accent);" id="topThreeCounter">
+                0 / 3 XONG
+              </span>
+            </div>
+
+            <div class="top-three-stack" id="topThreeContainer">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- ==============================================================
+               SECTION 3.3 & 4: TIẾN ĐỘ THEO MẢNG (CHUNKY PROGRESS BARS)
+               ============================================================== -->
+          <div class="grok-progress-container">
+            <div class="progress-top-toolbar">
+              <div class="grok-section-title">
+                <span>📊</span>
+                <span>Tiến độ theo mảng (6 Bots)</span>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn-grok-sm" id="btnToggleSortDomains">
+                  ⇅ <span id="sortDomainLabel">% Giảm dần</span>
+                </button>
+                <button class="btn-grok-sm" id="btnToggleEmptyDomains">
+                  👁 <span id="emptyDomainLabel">Hiện cả mảng trống</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="progress-bars-list" id="progressBarsList">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- ==============================================================
+               SECTION 3.4: BẢNG VIỆC (TASKS - LIST & KANBAN)
+               ============================================================== -->
+          <div class="grok-tasks-wrapper">
+            <div class="tasks-toolbar">
+              <div class="grok-section-title">
+                <span>📋</span>
+                <span>Bảng việc toàn diện</span>
+                <span style="font-size: 0.76rem; color: var(--fig-ink-40); font-weight: 400;" id="taskTotalCountSubtitle">(11 việc)</span>
+              </div>
+
+              <div class="filter-pills-row">
+                <button class="pill-filter active" data-filter="all">Tất cả</button>
+                <button class="pill-filter" data-filter="active">Chưa xong</button>
+                <button class="pill-filter" data-filter="overdue">Quá hạn</button>
+
+                <select class="grok-select" id="filterDomainSelect">
+                  <option value="all">Tất cả mảng</option>
+                </select>
+
+                <select class="grok-select" id="filterPrioritySelect">
+                  <option value="all">Tất cả ưu tiên</option>
+                  <option value="Cao">Cao</option>
+                  <option value="Vừa">Vừa</option>
+                  <option value="Thấp">Thấp</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- List View -->
+            <div id="taskListView" class="task-rows-stack">
+              <!-- Rendered via JS -->
+            </div>
+
+            <!-- Kanban View -->
+            <div id="taskKanbanView" class="kanban-board-grok">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+        </main>
+
+        <!-- ==================================================================
+             COLUMN 3: BOT SCREEN & ROUTINES (RIGHT PANEL)
+             ================================================================== -->
+        <aside class="col-routines-preview">
+          
+          <!-- Mini Live Screen Preview ("Vincent's Bot Runtime") -->
+          <div class="bot-screen-preview">
+            <div class="screen-header-bar">
+              <span>VINCENT BOT RUNTIME</span>
+              <span class="screen-runtime-pill">● IDLE</span>
+            </div>
+            <div class="screen-viewport-content">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--fig-green-text);"></div>
+                <span style="font-size: 0.78rem; font-weight: 600; color: var(--fig-ink);">Persistent Agent Workspace</span>
+              </div>
+              <div style="font-size: 0.72rem; color: var(--fig-ink-60);">
+                Mục tiêu 6-12 tháng:
+              </div>
+              <div style="font-size: 0.8rem; font-weight: 600; color: var(--fig-purple-accent); background: var(--fig-card-subtle); padding: 6px 8px; border-radius: 6px;" id="asideGoalsText">
+                Thanh Long Startup, portfolio AI media, Agent OS chạy ổn.
+              </div>
+            </div>
+          </div>
+
+          <!-- VLU Subjects Card -->
+          <div class="grok-section-wrap" id="blockVlu">
+            <div class="sidebar-section-title">
+              <span>MÔN HỌC VLU (6 MÔN)</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px;" id="vluSubjectList">
+              <!-- Rendered via JS -->
+            </div>
+            <div style="font-size: 0.72rem; color: var(--fig-ink-40); padding: 0 4px;">
+              📌 Nộp Part 2: <strong>21/11</strong> | Khởi động Part 3: <strong>18/11</strong>
+            </div>
+          </div>
+
+          <!-- Standing Routines & Gym Weekly Tracker -->
+          <div class="grok-section-wrap" id="blockHabits">
+            <div class="sidebar-section-title">
+              <span>THÓI QUEN & GYM THEO TUẦN</span>
+            </div>
+            <div class="routine-card-item">
+              <div class="routine-trigger-text">
+                <span>⚡</span>
+                <span>Rèn luyện thể lực (Gym / Cardio)</span>
+              </div>
+              <div class="routine-action-text">
+                Tick từng ngày để duy trì thói quen:
+              </div>
+              <div class="habit-pills-row" id="habitWeekGrid">
+                <!-- 7 days rendered via JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Mới lụm gần đây (Quick Notes) -->
+          <div class="grok-section-wrap" id="blockNotes">
+            <div class="sidebar-section-title">
+              <span>MỚI LỤM GẦN ĐÂY</span>
+            </div>
+            <div class="routine-card-item">
+              <textarea class="grok-input" style="width: 100%; min-height: 70px; resize: vertical; font-size: 0.78rem;" id="quickNotesInput" placeholder="Ý tưởng, công cụ mới lượm..."></textarea>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                <span style="font-size: 0.68rem; color: var(--fig-red-accent);">🔒 Không dán key/mật khẩu</span>
+                <button class="btn-grok-sm" style="font-size: 0.7rem; padding: 2px 8px;" id="btnSaveNotes">Lưu</button>
+              </div>
+            </div>
+          </div>
+
+        </aside>
+
+      </div> <!-- /grok-workspace-grid -->
+
+    </div> <!-- /grok-window-frame -->
+  </div> <!-- /grok-desktop-wrapper -->
+
+  <!-- ======================================================================
+       MODAL 1: THÊM / SỬA CÔNG VIỆC
+       ====================================================================== -->
+  <div class="grok-modal-overlay" id="taskModal">
+    <div class="grok-modal-window">
+      <div class="modal-head">
+        <h3 style="font-size: 1.15rem; font-weight: 700;" id="taskModalTitle">Thêm công việc</h3>
+        <button class="btn-grok-sm" onclick="closeTaskModal()">✕</button>
+      </div>
+
+      <form style="display: flex; flex-direction: column; gap: 14px;" id="taskForm" onsubmit="handleSaveTask(event)">
+        <input type="hidden" id="formTaskId">
+
+        <div class="form-field-group">
+          <label>Tên công việc *</label>
+          <input type="text" class="grok-input" id="formTaskName" required placeholder="Ví dụ: Lên kịch bản video test..." />
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-field-group">
+            <label>Bot / Mảng *</label>
+            <select class="grok-input" id="formTaskDomain" required></select>
+          </div>
+
+          <div class="form-field-group">
+            <label>Độ ưu tiên</label>
+            <select class="grok-input" id="formTaskPriority">
+              <option value="Cao">Cao</option>
+              <option value="Vừa" selected>Vừa</option>
+              <option value="Thấp">Thấp</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-field-group">
+            <label>Hạn hoàn thành</label>
+            <input type="text" class="grok-input" id="formTaskDueDate" placeholder="Hôm nay, 15/11 hoặc 18/11 → 28/11" />
+          </div>
+
+          <div class="form-field-group">
+            <label>Việc cha (Tùy chọn)</label>
+            <select class="grok-input" id="formTaskParent">
+              <option value="">(Không có)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-field-group">
+          <label>Ghi chú</label>
+          <input type="text" class="grok-input" id="formTaskNotes" placeholder="Chi tiết hoặc link..." />
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+          <button type="button" class="btn-grok-sm" onclick="closeTaskModal()">Hủy</button>
+          <button type="submit" class="btn-grok-sm btn-grok-primary">Lưu công việc</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 2: CÀI ĐẶT TOÀN DIỆN (SETTINGS)
+       ====================================================================== -->
+  <div class="grok-modal-overlay" id="settingsModal">
+    <div class="grok-modal-window">
+      <div class="modal-head">
+        <h3 style="font-size: 1.15rem; font-weight: 700;">⚙ Cài đặt & Tùy biến Grok Bot</h3>
+        <button class="btn-grok-sm" onclick="closeSettingsModal()">✕</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-field-group">
+            <label>Chế độ giao diện</label>
+            <select class="grok-input" id="settingThemeSelect" onchange="changeTheme(this.value)">
+              <option value="light" selected>Sáng (Grok Bot Canonical Light)</option>
+              <option value="dark">Tối (Dark Velvet Silk)</option>
+            </select>
+          </div>
+
+          <div class="form-field-group">
+            <label>Cỡ chữ</label>
+            <select class="grok-input" id="settingFontSelect" onchange="changeFontSize(this.value)">
+              <option value="medium">Vừa (14px)</option>
+              <option value="large" selected>Lớn (15.5px)</option>
+              <option value="xlarge">Rất lớn (17.5px)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-field-group">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label>Quản lý Bot / Mảng</label>
+            <button class="btn-grok-sm" style="font-size: 0.72rem; padding: 2px 6px;" onclick="promptAddNewDomain()">+ Thêm Bot</button>
+          </div>
+          <div id="settingsDomainList" style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto;">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <div class="form-field-group">
+          <label>Mục tiêu 6–12 tháng</label>
+          <input type="text" class="grok-input" id="settingGoalsInput" value="Thanh Long Startup, portfolio AI media, Agent OS chạy ổn." />
+        </div>
+
+        <div class="form-field-group" style="border-top: 1px solid var(--fig-ink-15); padding-top: 12px;">
+          <label>Sao lưu dữ liệu (JSON)</label>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" class="btn-grok-sm" onclick="exportDataJSON()">📥 Xuất JSON</button>
+            <label class="btn-grok-sm" style="cursor: pointer; margin: 0;">
+              📤 Nhập JSON
+              <input type="file" id="importJsonFileInput" accept=".json" style="display: none;" onchange="importDataJSON(event)" />
+            </label>
+            <button type="button" class="btn-grok-sm" style="color: var(--fig-red-accent);" onclick="resetToSampleData()">🔄 Về dữ liệu mẫu</button>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+          <button type="button" class="btn-grok-sm btn-grok-primary" onclick="saveSettingsAndClose()">Lưu & Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 3: GHIM VIỆC KHÁC VÀO "LÀM NGAY"
+       ====================================================================== -->
+  <div class="grok-modal-overlay" id="pinTaskModal">
+    <div class="grok-modal-window" style="max-width: 460px;">
+      <div class="modal-head">
+        <h3 style="font-size: 1.1rem; font-weight: 700;">📌 Ghim việc vào LÀM NGAY</h3>
+        <button class="btn-grok-sm" onclick="closePinModal()">✕</button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; max-height: 320px; overflow-y: auto;" id="pinTaskList">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       CORE JAVASCRIPT LOGIC (GROK BOT RUNTIME)
+       ====================================================================== -->
+  <script>
+    const STORAGE_KEY = 'vincent_grokbot_dashboard_v3';
+    let memoryStorage = null;
+
+    function safeGetStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (err) {
+        return memoryStorage;
+      }
+    }
+
+    function safeSetStorage(data) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (err) {}
+      memoryStorage = data;
+    }
+
+    /* Relative date helpers (So overdue, today, upcoming always work) */
+    function getOffsetDate(offsetDays) {
+      const d = new Date();
+      d.setDate(d.getDate() + offsetDays);
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
+    function getOffsetDateShort(offsetDays) {
+      const d = new Date();
+      d.setDate(d.getDate() + offsetDays);
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      return `${day}/${month}`;
+    }
+
+    /* Initial Seed Data */
+    function buildInitialData() {
+      return {
+        version: '3.0',
+        pinnedTaskId: null,
+        streak: 0,
+        streakHistory: [],
+        sortDomainsMode: 'desc',
+        hideEmptyDomains: false, // Priority domains like Thanh Long always shown
+        currentView: 'list',
+        filterCategory: 'all',
+        filterDomain: 'all',
+        filterPriority: 'all',
+        selectedRosterDomain: null, // filter by clicked bot
+        settings: {
+          theme: 'light',
+          fontSize: 'large',
+          goalsText: 'Thanh Long Startup, portfolio AI media, Agent OS chạy ổn.'
+        },
+        quickNotesText: 'Claude 3.7 sonnet agent, Grok Bot multi-agent design, Satori auto sheet workflow.',
+        habitDays: [false, false, false, false, false, false, false],
+        domains: [
+          { id: 'd_thanhlong', name: 'Thanh Long', role: 'Startup Cốt Lõi', color: '#10b981', darkEye: true, icon: '🐲', archived: false, isPriority: true },
+          { id: 'd_satori', name: 'SATORI', role: 'Automation Sheet', color: '#ec4899', darkEye: false, icon: '🌸', archived: false, isPriority: true },
+          { id: 'd_agentos', name: 'Agent-os', role: 'System Orchestrator', color: '#8b5cf6', darkEye: false, icon: '⚡', archived: false, isPriority: true },
+          { id: 'd_edit', name: 'Edit', role: 'AI Media & Video', color: '#f59e0b', darkEye: true, icon: '🎬', archived: false, isPriority: false },
+          { id: 'd_vlu', name: 'VLU', role: 'Academic Marketing', color: '#ef4444', darkEye: false, icon: '🎓', archived: false, isPriority: false },
+          { id: 'd_build', name: 'BUILD', role: 'Engineering Personas', color: '#2563eb', darkEye: false, icon: '🛠', archived: false, isPriority: false },
+          // Archived
+          { id: 'd_events', name: 'Events', role: 'Event Ops', color: '#64748b', darkEye: false, icon: '🎪', archived: true, isPriority: false },
+          { id: 'd_canhan', name: 'Cá nhân', role: 'Personal Ops', color: '#64748b', darkEye: false, icon: '☕', archived: true, isPriority: false },
+          { id: 'd_agency', name: 'Agency nhỏ', role: 'Legacy Agency', color: '#64748b', darkEye: false, icon: '📁', archived: true, isPriority: false }
+        ],
+        tasks: [
+          { id: 'task_1', title: 'Đội claude agent kịch bản + edit video', domainId: 'd_edit', priority: 'Cao', dueDate: getOffsetDate(-4), completed: false, notes: 'Agent tự động viết kịch bản và cắt ghép khung hình' },
+          { id: 'task_2', title: 'Phân tích bóc tách', domainId: 'd_edit', priority: 'Cao', dueDate: getOffsetDate(-4), completed: false, notes: 'Bóc tách cấu trúc video triệu view trên TikTok/Reels' },
+          { id: 'task_3', title: 'Agent tự động SATORI sheet', domainId: 'd_satori', priority: 'Vừa', dueDate: getOffsetDate(-3), completed: false, notes: 'Kết nối pipeline dữ liệu Google Sheet của Satori' },
+          { id: 'task_4', title: 'Lên lịch ôn thi VLU + lịch ôn', domainId: 'd_vlu', priority: 'Vừa', dueDate: getOffsetDate(-2), completed: false, notes: 'Sắp xếp thời gian biểu cho 6 môn học kỳ này' },
+          { id: 'task_5', title: 'Persona agents system', domainId: 'd_build', priority: 'Thấp', dueDate: getOffsetDate(-2), completed: false, notes: 'Tạo bộ khung persona agents cho quy trình agency' },
+          { id: 'task_6', title: 'Part 2 · 2.2 Pricing strategy', domainId: 'd_vlu', priority: 'Cao', dueDate: getOffsetDate(0), completed: false, notes: 'Chiến lược định giá cho bài tập lớn Marketing VLU' },
+          { id: 'task_7', title: 'Part 2 · 2.3 Distribution strategy', domainId: 'd_vlu', priority: 'Cao', dueDate: getOffsetDate(1), completed: false, notes: 'Chiến lược phân phối kênh omni-channel' },
+          { id: 'task_8', title: 'Part 2 · 2.4 Communication strategy', domainId: 'd_vlu', priority: 'Cao', dueDate: getOffsetDate(1), completed: false, notes: 'Kế hoạch truyền thông tích hợp IMC' },
+          { id: 'task_9', title: 'Part 2 · Ghép Part 1 + Part 2, rà soát', domainId: 'd_vlu', priority: 'Cao', dueDate: getOffsetDate(3), completed: false, notes: 'Ghép file docx, kiểm tra đạo văn và format' },
+          { id: 'task_10', title: 'Part 3 · Bắt đầu làm từ tuần tới (hạn nộp 10 ngày sau)', domainId: 'd_vlu', priority: 'Vừa', dueDate: `${getOffsetDateShort(4)} → ${getOffsetDateShort(14)}`, completed: false, notes: 'Triển khai chi tiết chiến dịch marketing' },
+          { id: 'task_11', title: 'Part 2 · Nhóm trưởng nộp bài (file GROUP x_PART 2, kèm Part 1)', domainId: 'd_vlu', priority: 'Cao', dueDate: getOffsetDate(7), completed: false, notes: 'Nộp lên cổng học tập VLU đúng hạn' }
+        ],
+        vluSubjects: [
+          { name: 'Nguyên lý kế toán', status: 'Đang học', note: 'Ôn định khoản & bảng cân đối' },
+          { name: 'Nghiên cứu marketing', status: 'Đang học', note: 'Chạy SPSS bài khảo sát' },
+          { name: 'Lịch sử Đảng', status: 'Đang học', note: 'Nắm các mốc đại hội quan trọng' },
+          { name: 'Marketing Căn Bản', status: 'Đang học', note: 'Hoàn thành assignment nhóm' },
+          { name: 'Service Learning', status: 'Đang học', note: 'Ghi chép nhật ký hoạt động' },
+          { name: 'Quản trị học', status: 'Đang học', note: 'Case study mô hình SWOT & PESTLE' }
+        ]
+      };
+    }
+
+    let state = safeGetStorage() || buildInitialData();
+
+    function persistState() {
+      safeSetStorage(state);
+    }
+
+    /* Date parsing */
+    function parseDateString(dateStr) {
+      if (!dateStr) return null;
+      const clean = dateStr.includes('→') ? dateStr.split('→')[0].trim() : dateStr.trim();
+      const parts = clean.split('/');
+      if (parts.length >= 2) {
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const year = parts.length === 3 ? parseInt(parts[2], 10) : new Date().getFullYear();
+        return new Date(year, month, day);
+      }
+      return null;
+    }
+
+    function calculateDaysDiff(targetDate) {
+      if (!targetDate) return 999;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const target = new Date(targetDate);
+      target.setHours(0, 0, 0, 0);
+      return Math.round((target - today) / (1000 * 60 * 60 * 24));
+    }
+
+    function formatVietnameseDate() {
+      const now = new Date();
+      const daysVN = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+      const dayName = daysVN[now.getDay()];
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
+      return `${dayName}, ${day}/${month}/${year}`;
+    }
+
+    function getActiveDomains() {
+      return state.domains.filter(d => !d.archived);
+    }
+
+    function getDomainById(id) {
+      return state.domains.find(d => d.id === id) || { name: 'Mảng khác', role: 'Ops', color: '#64748b', icon: '⚡' };
+    }
+
+    function getDomainStats(domainId) {
+      const tasks = state.tasks.filter(t => t.domainId === domainId);
+      const total = tasks.length;
+      const done = tasks.filter(t => t.completed).length;
+      const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+      const overdue = tasks.filter(t => !t.completed && calculateDaysDiff(parseDateString(t.dueDate)) < 0).length;
+      return { total, done, percent, overdue };
+    }
+
+    function calculateOverallMetrics() {
+      const activeDomainIds = new Set(getActiveDomains().map(d => d.id));
+      const activeTasks = state.tasks.filter(t => activeDomainIds.has(t.domainId));
+      const total = activeTasks.length;
+      const done = activeTasks.filter(t => t.completed).length;
+      let overdue = 0;
+      activeTasks.forEach(t => {
+        if (!t.completed && calculateDaysDiff(parseDateString(t.dueDate)) < 0) overdue++;
+      });
+      return { total, done, overdue };
+    }
+
+    /* ==========================================================================
+       RENDER COLUMN 1: BOT ROSTER SIDEBAR (WITH EXPRESSIVE 2.5D AVATARS)
+       ========================================================================== */
+    function renderBotRoster() {
+      const container = document.getElementById('botRosterList');
+      container.innerHTML = '';
+
+      const activeDomains = getActiveDomains();
+
+      activeDomains.forEach(domain => {
+        const stats = getDomainStats(domain.id);
+        const item = document.createElement('div');
+        const isActive = state.selectedRosterDomain === domain.id;
+        item.className = `roster-item ${isActive ? 'active' : ''}`;
+
+        // Status snippet calculation
+        let statusSnippet = '';
+        let dotColor = '#10b981';
+        if (domain.isPriority && stats.total === 0) {
+          statusSnippet = 'Chưa có task · Cần tạo';
+          dotColor = '#8b5cf6';
+        } else if (stats.overdue > 0) {
+          statusSnippet = `${stats.overdue} việc trễ deadline`;
+          dotColor = '#ef4444';
+        } else if (stats.total === 0) {
+          statusSnippet = 'Đang nghỉ / 0 task';
+          dotColor = '#64748b';
+        } else if (stats.percent === 100) {
+          statusSnippet = 'Đã hoàn tất 100%';
+          dotColor = '#10b981';
+        } else {
+          statusSnippet = `${stats.done}/${stats.total} việc xong`;
+          dotColor = '#f59e0b';
+        }
+
+        item.innerHTML = `
+          <div class="bot-avatar-3d" style="background: ${domain.color};">
+            <div class="avatar-facet">
+              <div class="bot-eyes ${domain.darkEye ? '' : 'eyes-light'}">
+                <div class="bot-eye"></div>
+                <div class="bot-eye"></div>
+              </div>
+            </div>
+          </div>
+          <div class="roster-meta">
+            <div class="roster-header-row">
+              <span class="roster-name">${escapeHtml(domain.name)}</span>
+              <span class="roster-progress-badge">${stats.total === 0 ? '0' : stats.percent}%</span>
+            </div>
+            <div class="roster-status-snippet">
+              <span class="status-dot-sm" style="background: ${dotColor};"></span>
+              <span>${escapeHtml(statusSnippet)}</span>
+            </div>
+          </div>
+        `;
+
+        item.onclick = () => {
+          if (state.selectedRosterDomain === domain.id) {
+            state.selectedRosterDomain = null;
+            state.filterDomain = 'all';
+          } else {
+            state.selectedRosterDomain = domain.id;
+            state.filterDomain = domain.id;
+          }
+          document.getElementById('filterDomainSelect').value = state.filterDomain;
+          renderAll();
+        };
+
+        container.appendChild(item);
+      });
+    }
+
+    /* ==========================================================================
+       RENDER COLUMN 2: MISSION TIMELINE & TELEMETRY
+       ========================================================================== */
+    function renderTelemetry() {
+      const { total, done, overdue } = calculateOverallMetrics();
+
+      document.getElementById('metricStreakVal').textContent = state.streak;
+      document.getElementById('metricStreakSub').textContent = state.streak > 0 
+        ? `Giữ phong độ ${state.streak} ngày!` 
+        : `Xong 3 việc để bắt đầu`;
+
+      document.getElementById('metricDoneVal').textContent = `${done}/${total}`;
+      const percentOverall = total === 0 ? 0 : Math.round((done / total) * 100);
+      document.getElementById('metricDoneSub').textContent = `${percentOverall}% công việc hoàn thành`;
+
+      const overdueEl = document.getElementById('metricOverdueVal');
+      const cardOverdue = document.getElementById('cardOverdue');
+      overdueEl.textContent = overdue;
+      
+      if (overdue > 0) {
+        cardOverdue.classList.add('has-overdue');
+        document.getElementById('metricOverdueSub').textContent = `${overdue} việc trễ deadline`;
+      } else {
+        cardOverdue.classList.remove('has-overdue');
+        document.getElementById('metricOverdueSub').textContent = `Tất cả đúng hạn`;
+      }
+
+      // Status message
+      const msgEl = document.getElementById('grokStatusMessage');
+      if (overdue > 0) {
+        msgEl.textContent = `Quét 6 Bot: Đang có ${overdue} việc quá hạn. Đừng né việc khó, xử lý dứt điểm.`;
+      } else {
+        msgEl.textContent = `Hệ thống ổn định. Tất cả Bot đang vận hành đúng tiến độ.`;
+      }
+
+      renderActionNowCard();
+    }
+
+    function renderActionNowCard() {
+      const card = document.getElementById('cardActionNow');
+      const avatarEl = document.getElementById('actionNowAvatar');
+      const nameEl = document.getElementById('actionNowAgentName');
+      const roleEl = document.getElementById('actionNowRole');
+      const tagEl = document.getElementById('actionNowTag');
+      const titleEl = document.getElementById('actionNowTitle');
+      const metaEl = document.getElementById('actionNowMeta');
+      const doneBtn = document.getElementById('btnActionNowDone');
+
+      // Check Thanh Long 0 task priority (User Q1 choice)
+      const thanhLongDomain = state.domains.find(d => d.id === 'd_thanhlong');
+      const thanhLongTasks = state.tasks.filter(t => t.domainId === 'd_thanhlong');
+
+      let actionTask = null;
+      if (state.pinnedTaskId) {
+        actionTask = state.tasks.find(t => t.id === state.pinnedTaskId && !t.completed);
+      }
+
+      if (!actionTask && thanhLongDomain && !thanhLongDomain.archived && thanhLongTasks.length === 0) {
+        avatarEl.style.background = '#10b981';
+        avatarEl.innerHTML = '🐲';
+        nameEl.textContent = 'Thanh Long Lead Bot';
+        roleEl.textContent = 'Startup Cốt Lõi';
+        tagEl.className = 'action-status-pill pill-startup';
+        tagEl.textContent = 'ƯU TIÊN SỐ 1';
+        titleEl.textContent = 'Thanh Long chưa có việc nào! Đừng né việc khó, tạo task đầu tiên ngay.';
+        metaEl.innerHTML = '<span>Mục tiêu: Đột phá startup cốt lõi của Vincent Trần.</span>';
+        doneBtn.textContent = '+ Tạo việc cho Thanh Long';
+        doneBtn.onclick = () => openAddTaskModal('d_thanhlong');
+        return;
+      }
+
+      // Priority domains search
+      if (!actionTask) {
+        const priorityDomainIds = new Set(['d_thanhlong', 'd_satori', 'd_agentos']);
+        const priorityTasks = state.tasks
+          .filter(t => !t.completed && priorityDomainIds.has(t.domainId))
+          .sort((a, b) => calculateDaysDiff(parseDateString(a.dueDate)) - calculateDaysDiff(parseDateString(b.dueDate)));
+        if (priorityTasks.length > 0) actionTask = priorityTasks[0];
+      }
+
+      if (!actionTask) {
+        const top3 = getTopThreeTasks();
+        if (top3.length > 0) actionTask = top3[0];
+      }
+
+      if (!actionTask) {
+        avatarEl.style.background = '#8b5cf6';
+        avatarEl.innerHTML = '⚡';
+        nameEl.textContent = 'Grok Coordinator';
+        roleEl.textContent = 'Mission Control';
+        tagEl.className = 'action-status-pill pill-startup';
+        tagEl.textContent = 'THẢNH THƠI';
+        titleEl.textContent = 'Mọi việc đã xử lý xong sạch sẽ! Nghỉ ngơi hoặc lập kế hoạch mới.';
+        metaEl.innerHTML = '<span>Tất cả mục tiêu đang đi đúng tiến độ.</span>';
+        doneBtn.style.display = 'none';
+        return;
+      }
+
+      doneBtn.style.display = 'inline-flex';
+      doneBtn.textContent = '✓ Xong việc này';
+      doneBtn.onclick = () => toggleTaskCompletion(actionTask.id);
+
+      const diff = calculateDaysDiff(parseDateString(actionTask.dueDate));
+      const dom = getDomainById(actionTask.domainId);
+
+      avatarEl.style.background = dom.color;
+      avatarEl.innerHTML = dom.icon || '⚡';
+      nameEl.textContent = `${dom.name} Bot`;
+      roleEl.textContent = dom.role || 'Agent';
+      titleEl.textContent = actionTask.title;
+
+      if (diff < 0) {
+        tagEl.className = 'action-status-pill pill-urgent';
+        tagEl.textContent = `TRỄ ${Math.abs(diff)} NGÀY`;
+        metaEl.innerHTML = `<span style="color: var(--fig-red-accent);">Hạn: ${actionTask.dueDate} (Quá hạn)</span> • <span>Ưu tiên: ${actionTask.priority}</span>`;
+      } else if (diff === 0) {
+        tagEl.className = 'action-status-pill pill-startup';
+        tagEl.textContent = 'HẠN HÔM NAY';
+        metaEl.innerHTML = `<span style="color: var(--fig-amber-accent);">Cần xong trước 23:59</span> • <span>Ưu tiên: ${actionTask.priority}</span>`;
+      } else {
+        tagEl.className = 'action-status-pill pill-startup';
+        tagEl.textContent = `CÒN ${diff} NGÀY`;
+        metaEl.innerHTML = `<span>Hạn: ${actionTask.dueDate}</span> • <span>Ưu tiên: ${actionTask.priority}</span>`;
+      }
+    }
+
+    /* 3 Việc chính hôm nay */
+    function getTopThreeTasks() {
+      const prioWeight = { 'Cao': 3, 'Vừa': 2, 'Thấp': 1 };
+      const activeDomainIds = new Set(getActiveDomains().map(d => d.id));
+      
+      return [...state.tasks]
+        .filter(t => activeDomainIds.has(t.domainId))
+        .sort((a, b) => {
+          if (a.completed !== b.completed) return a.completed ? 1 : -1;
+          const diffA = calculateDaysDiff(parseDateString(a.dueDate));
+          const diffB = calculateDaysDiff(parseDateString(b.dueDate));
+          if (diffA !== diffB) return diffA - diffB;
+          return (prioWeight[b.priority] || 1) - (prioWeight[a.priority] || 1);
+        })
+        .slice(0, 3);
+    }
+
+    function renderTopThree() {
+      const container = document.getElementById('topThreeContainer');
+      const counterEl = document.getElementById('topThreeCounter');
+      const top3 = getTopThreeTasks();
+      container.innerHTML = '';
+
+      if (top3.length === 0) {
+        container.innerHTML = `<div style="grid-column: 1 / -1; padding: 24px; text-align: center; color: var(--fig-ink-40);">Chưa có công việc nào. Bấm "+ Thêm việc" để nạp task.</div>`;
+        counterEl.textContent = '0 / 0 XONG';
+        return;
+      }
+
+      let doneCount = 0;
+      top3.forEach(task => {
+        if (task.completed) doneCount++;
+        const card = document.createElement('div');
+        card.className = `grok-focus-item ${task.completed ? 'done' : ''}`;
+
+        const dom = getDomainById(task.domainId);
+        const diff = calculateDaysDiff(parseDateString(task.dueDate));
+        let dueLabel = task.dueDate;
+        let dueStyle = '';
+        if (diff < 0) {
+          dueLabel = `Trễ ${Math.abs(diff)} ngày`;
+          dueStyle = 'color: var(--fig-red-accent); font-weight: 700;';
+        } else if (diff === 0) {
+          dueLabel = 'Hôm nay';
+          dueStyle = 'color: var(--fig-amber-accent); font-weight: 700;';
+        }
+
+        card.innerHTML = `
+          <div class="focus-item-top">
+            <input type="checkbox" class="grok-check" ${task.completed ? 'checked' : ''} onchange="toggleTaskCompletion('${task.id}')" />
+            <div style="flex: 1; min-width: 0;">
+              <div class="focus-item-title">${escapeHtml(task.title)}</div>
+              ${task.notes ? `<div style="font-size: 0.74rem; color: var(--fig-ink-40); margin-top: 3px;">${escapeHtml(task.notes)}</div>` : ''}
+            </div>
+          </div>
+          <div class="focus-item-meta">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 11px;">${dom.icon || '⚡'}</span>
+              <span style="font-weight: 600; color: var(--fig-ink-60);">${escapeHtml(dom.name)}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span class="chip-prio ${task.priority === 'Cao' ? 'prio-cao' : 'prio-vua'}">${task.priority}</span>
+              <span style="${dueStyle}">${dueLabel}</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      counterEl.textContent = `${doneCount} / ${top3.length} XONG`;
+      if (top3.length === 3 && doneCount === 3) checkAndTriggerCelebration();
+    }
+
+    function checkAndTriggerCelebration() {
+      const todayISO = new Date().toISOString().split('T')[0];
+      if (!state.streakHistory.includes(todayISO)) {
+        state.streakHistory.push(todayISO);
+        state.streak += 1;
+        persistState();
+        triggerConfetti();
+        renderTelemetry();
+      }
+    }
+
+    /* ==========================================================================
+       RENDER SECTION 3.3 & 4: TIẾN ĐỘ THEO MẢNG (CHUNKY PROGRESS BARS)
+       ========================================================================== */
+    function renderProgressDomains() {
+      const container = document.getElementById('progressBarsList');
+      container.innerHTML = '';
+      const activeDomains = getActiveDomains();
+
+      let domainData = activeDomains.map(d => {
+        const stats = getDomainStats(d.id);
+        return { domain: d, ...stats };
+      });
+
+      if (state.hideEmptyDomains) {
+        domainData = domainData.filter(item => item.total > 0 || item.domain.isPriority);
+      }
+
+      if (state.sortDomainsMode === 'desc') {
+        domainData.sort((a, b) => b.percent - a.percent);
+      } else {
+        domainData.sort((a, b) => {
+          if (b.overdue !== a.overdue) return b.overdue - a.overdue;
+          return a.percent - b.percent;
+        });
+      }
+
+      domainData.forEach(item => {
+        const { domain, total, done, percent, overdue } = item;
+        const row = document.createElement('div');
+        row.className = 'progress-bar-row';
+
+        // Priority domain with 0 tasks (Thanh Long alert)
+        if (domain.isPriority && total === 0) {
+          row.classList.add('row-priority-startup-empty');
+          row.innerHTML = `
+            <div class="domain-badge-cell">
+              <div class="domain-avatar-mini" style="background: ${domain.color};">${domain.icon}</div>
+              <span class="domain-title-text">${escapeHtml(domain.name)}</span>
+            </div>
+            <div class="progress-track-cell">
+              <div class="chunky-track">
+                <div class="chunky-fill lvl-0" style="width: 100%;"></div>
+              </div>
+            </div>
+            <div class="progress-number-cell p-purple">
+              <span style="font-size: 0.75rem; color: var(--fig-purple-accent); cursor: pointer;" onclick="openAddTaskModal('${domain.id}')">+ Thêm task</span>
+            </div>
+          `;
+          container.appendChild(row);
+          return;
+        }
+
+        let lvlClass = 'lvl-0';
+        let pClass = 'p-red';
+        if (percent === 100) {
+          lvlClass = 'lvl-100';
+          pClass = 'p-green';
+        } else if (percent >= 60) {
+          lvlClass = 'lvl-60';
+          pClass = 'p-amber';
+        } else if (percent >= 1) {
+          lvlClass = 'lvl-1';
+          pClass = 'p-orange';
+        }
+
+        row.innerHTML = `
+          <div class="domain-badge-cell">
+            <div class="domain-avatar-mini" style="background: ${domain.color};">${domain.icon}</div>
+            <div style="display: flex; flex-direction: column;">
+              <span class="domain-title-text">${escapeHtml(domain.name)}</span>
+              <span style="font-size: 0.72rem; color: var(--fig-ink-40);">${done}/${total} việc ${overdue > 0 ? `· <span style="color:var(--fig-red-accent);">${overdue} trễ</span>` : ''}</span>
+            </div>
+          </div>
+          <div class="progress-track-cell">
+            <div class="chunky-track">
+              <div class="chunky-fill ${lvlClass}" style="width: ${percent}%;"></div>
+            </div>
+          </div>
+          <div class="progress-number-cell ${pClass}">
+            <span>${percent}%</span>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    /* ==========================================================================
+       RENDER SECTION 3.4: BẢNG VIỆC (LIST & KANBAN)
+       ========================================================================== */
+    function renderTasks() {
+      const listContainer = document.getElementById('taskListView');
+      const kanbanContainer = document.getElementById('taskKanbanView');
+      const countEl = document.getElementById('taskTotalCountSubtitle');
+
+      const activeDomainIds = new Set(getActiveDomains().map(d => d.id));
+      let filtered = state.tasks.filter(t => activeDomainIds.has(t.domainId));
+
+      if (state.filterCategory === 'active') filtered = filtered.filter(t => !t.completed);
+      else if (state.filterCategory === 'overdue') filtered = filtered.filter(t => !t.completed && calculateDaysDiff(parseDateString(t.dueDate)) < 0);
+
+      if (state.filterDomain !== 'all') filtered = filtered.filter(t => t.domainId === state.filterDomain);
+      if (state.filterPriority !== 'all') filtered = filtered.filter(t => t.priority === state.filterPriority);
+
+      countEl.textContent = `(${filtered.length} trên tổng ${state.tasks.length} việc)`;
+
+      // Render List
+      listContainer.innerHTML = '';
+      if (filtered.length === 0) {
+        listContainer.innerHTML = `<div style="padding: 30px; text-align: center; color: var(--fig-ink-40);">Không có công việc nào phù hợp bộ lọc.</div>`;
+      } else {
+        filtered.forEach(task => {
+          const dom = getDomainById(task.domainId);
+          const diff = calculateDaysDiff(parseDateString(task.dueDate));
+          const isOverdue = !task.completed && diff < 0;
+
+          const row = document.createElement('div');
+          row.className = `task-row-item ${isOverdue ? 'overdue' : ''} ${task.completed ? 'done' : ''}`;
+
+          let dueText = task.dueDate;
+          if (isOverdue) dueText = `<span style="color: var(--fig-red-accent); font-weight: 700;">Trễ ${Math.abs(diff)} ngày</span>`;
+          else if (diff === 0 && !task.completed) dueText = `<span style="color: var(--fig-amber-accent); font-weight: 700;">Hôm nay</span>`;
+
+          row.innerHTML = `
+            <input type="checkbox" class="grok-check" ${task.completed ? 'checked' : ''} onchange="toggleTaskCompletion('${task.id}')" />
+            <div style="min-width: 0;">
+              <div class="t-name">${escapeHtml(task.title)}</div>
+              ${task.notes ? `<div class="t-notes">${escapeHtml(task.notes)}</div>` : ''}
+            </div>
+            <div class="col-hide-mobile" style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 11px;">${dom.icon}</span>
+              <span style="font-size: 0.82rem; font-weight: 600; color: var(--fig-ink-60);">${escapeHtml(dom.name)}</span>
+            </div>
+            <div class="col-hide-mobile">
+              <span class="chip-prio ${task.priority === 'Cao' ? 'prio-cao' : 'prio-vua'}">${task.priority}</span>
+            </div>
+            <div class="col-hide-mobile" style="font-family: var(--font-mono); font-size: 0.8rem;">
+              ${dueText}
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 4px;">
+              <button class="btn-grok-sm" style="padding: 2px 6px; font-size: 0.72rem;" onclick="openEditTaskModal('${task.id}')">✎</button>
+              <button class="btn-grok-sm" style="padding: 2px 6px; font-size: 0.72rem; color: var(--fig-red-accent);" onclick="deleteTask('${task.id}')">✕</button>
+            </div>
+          `;
+          listContainer.appendChild(row);
+        });
+      }
+
+      // Render Kanban
+      kanbanContainer.innerHTML = '';
+      getActiveDomains().forEach(domain => {
+        const col = document.createElement('div');
+        col.className = 'kanban-col-grok';
+        const dTasks = filtered.filter(t => t.domainId === domain.id);
+
+        col.innerHTML = `
+          <div class="kanban-header-grok">
+            <span>${domain.icon} ${escapeHtml(domain.name)}</span>
+            <span style="color: var(--fig-ink-40);">${dTasks.length}</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            ${dTasks.length === 0 ? '<div style="font-size: 0.72rem; color: var(--fig-ink-40); padding: 8px 0; text-align: center;">0 task</div>' : ''}
+            ${dTasks.map(t => `
+              <div class="kanban-card-grok" onclick="openEditTaskModal('${t.id}')">
+                <div style="font-size: 0.7rem; color: var(--fig-ink-40); margin-bottom: 2px;">${t.dueDate}</div>
+                <div style="font-weight: 600; color: var(--fig-ink); ${t.completed ? 'text-decoration: line-through; opacity: 0.5;' : ''}">${escapeHtml(t.title)}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        kanbanContainer.appendChild(col);
+      });
+    }
+
+    function toggleTaskCompletion(taskId) {
+      const task = state.tasks.find(t => t.id === taskId);
+      if (task) {
+        task.completed = !task.completed;
+        persistState();
+        renderAll();
+      }
+    }
+
+    function deleteTask(taskId) {
+      if (confirm('Xóa công việc này khỏi danh sách?')) {
+        state.tasks = state.tasks.filter(t => t.id !== taskId);
+        if (state.pinnedTaskId === taskId) state.pinnedTaskId = null;
+        persistState();
+        renderAll();
+      }
+    }
+
+    /* ==========================================================================
+       RENDER COLUMN 3: ROUTINES, VLU, HABITS, NOTES
+       ========================================================================== */
+    function renderRoutinesAndSubBlocks() {
+      // VLU
+      const vluList = document.getElementById('vluSubjectList');
+      vluList.innerHTML = '';
+      state.vluSubjects.forEach(s => {
+        const row = document.createElement('div');
+        row.className = 'routine-card-item';
+        row.style.padding = '8px 10px';
+        row.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong style="font-size: 0.8rem; color: var(--fig-ink);">${escapeHtml(s.name)}</strong>
+            <span style="font-size: 0.68rem; padding: 1px 6px; border-radius: 4px; background: rgba(139, 92, 246, 0.15); color: var(--fig-purple-accent);">${s.status}</span>
+          </div>
+          <div style="font-size: 0.72rem; color: var(--fig-ink-40);">${escapeHtml(s.note)}</div>
+        `;
+        vluList.appendChild(row);
+      });
+
+      // Habits
+      const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+      const todayIdx = new Date().getDay();
+      const habitGrid = document.getElementById('habitWeekGrid');
+      habitGrid.innerHTML = '';
+
+      state.habitDays.forEach((checked, i) => {
+        const pill = document.createElement('div');
+        pill.className = `habit-day-pill ${checked ? 'active' : ''} ${i === todayIdx ? 'is-today' : ''}`;
+        pill.innerHTML = `
+          <span style="font-weight: 700; font-size: 0.65rem;">${days[i]}</span>
+          <span style="font-size: 10px;">${checked ? '✓' : '·'}</span>
+        `;
+        pill.onclick = () => {
+          state.habitDays[i] = !state.habitDays[i];
+          persistState();
+          renderRoutinesAndSubBlocks();
+        };
+        habitGrid.appendChild(pill);
+      });
+
+      // Goals & Notes
+      document.getElementById('asideGoalsText').textContent = state.settings.goalsText || 'Thanh Long Startup, portfolio AI media, Agent OS chạy ổn.';
+      document.getElementById('quickNotesInput').value = state.quickNotesText || '';
+    }
+
+    /* Modal Handlers */
+    function openAddTaskModal(preselectedDomainId) {
+      document.getElementById('taskModalTitle').textContent = 'Thêm công việc';
+      document.getElementById('formTaskId').value = '';
+      document.getElementById('formTaskName').value = '';
+      document.getElementById('formTaskPriority').value = 'Vừa';
+      document.getElementById('formTaskDueDate').value = 'Hôm nay';
+      document.getElementById('formTaskNotes').value = '';
+
+      populateDomainSelectOptions('formTaskDomain', preselectedDomainId);
+      populateParentTaskOptions('formTaskParent');
+      document.getElementById('taskModal').classList.add('open');
+      document.getElementById('formTaskName').focus();
+    }
+
+    function openEditTaskModal(taskId) {
+      const task = state.tasks.find(t => t.id === taskId);
+      if (!task) return;
+      document.getElementById('taskModalTitle').textContent = 'Sửa công việc';
+      document.getElementById('formTaskId').value = task.id;
+      document.getElementById('formTaskName').value = task.title;
+      document.getElementById('formTaskPriority').value = task.priority;
+      document.getElementById('formTaskDueDate').value = task.dueDate;
+      document.getElementById('formTaskNotes').value = task.notes || '';
+
+      populateDomainSelectOptions('formTaskDomain', task.domainId);
+      populateParentTaskOptions('formTaskParent', task.parentId, task.id);
+      document.getElementById('taskModal').classList.add('open');
+    }
+
+    function closeTaskModal() {
+      document.getElementById('taskModal').classList.remove('open');
+    }
+
+    function handleSaveTask(e) {
+      e.preventDefault();
+      const id = document.getElementById('formTaskId').value;
+      const title = document.getElementById('formTaskName').value.trim();
+      const domainId = document.getElementById('formTaskDomain').value;
+      const priority = document.getElementById('formTaskPriority').value;
+      let dueDate = document.getElementById('formTaskDueDate').value.trim();
+      const notes = document.getElementById('formTaskNotes').value.trim();
+      const parentId = document.getElementById('formTaskParent').value || null;
+
+      if (!title) return;
+      if (dueDate.toLowerCase() === 'hôm nay') dueDate = getOffsetDate(0);
+
+      if (id) {
+        const task = state.tasks.find(t => t.id === id);
+        if (task) {
+          task.title = title;
+          task.domainId = domainId;
+          task.priority = priority;
+          task.dueDate = dueDate;
+          task.notes = notes;
+          task.parentId = parentId;
+        }
+      } else {
+        state.tasks.unshift({
+          id: 'task_' + Date.now(),
+          title,
+          domainId,
+          priority,
+          dueDate,
+          notes,
+          parentId,
+          completed: false
+        });
+      }
+
+      persistState();
+      closeTaskModal();
+      renderAll();
+    }
+
+    function populateDomainSelectOptions(selectId, selectedId) {
+      const select = document.getElementById(selectId);
+      select.innerHTML = '';
+      getActiveDomains().forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.id;
+        opt.textContent = `${d.icon} ${d.name}`;
+        if (d.id === selectedId) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
+    function populateParentTaskOptions(selectId, selectedParentId, currentTaskId) {
+      const select = document.getElementById(selectId);
+      select.innerHTML = '<option value="">(Không có)</option>';
+      state.tasks.forEach(t => {
+        if (t.id !== currentTaskId) {
+          const opt = document.createElement('option');
+          opt.value = t.id;
+          opt.textContent = t.title;
+          if (t.id === selectedParentId) opt.selected = true;
+          select.appendChild(opt);
+        }
+      });
+    }
+
+    /* Pin Modal */
+    function openPinModal() {
+      const listEl = document.getElementById('pinTaskList');
+      listEl.innerHTML = '';
+      const uncompleted = state.tasks.filter(t => !t.completed);
+
+      if (uncompleted.length === 0) {
+        listEl.innerHTML = '<div style="color:var(--fig-ink-40); padding:10px;">Không có việc nào đang chờ.</div>';
+      } else {
+        uncompleted.forEach(task => {
+          const dom = getDomainById(task.domainId);
+          const btn = document.createElement('div');
+          btn.style.cssText = 'padding: 8px 10px; border: 1px solid var(--fig-ink-10); border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--fig-card);';
+          btn.innerHTML = `
+            <div>
+              <div style="font-weight: 600; font-size: 0.85rem; color: var(--fig-ink);">${escapeHtml(task.title)}</div>
+              <div style="font-size: 0.72rem; color: var(--fig-ink-40);">${dom.icon} ${escapeHtml(dom.name)} · ${task.dueDate}</div>
+            </div>
+            <span class="btn-grok-sm" style="padding: 2px 8px; font-size: 0.72rem;">Ghim</span>
+          `;
+          btn.onclick = () => {
+            state.pinnedTaskId = task.id;
+            persistState();
+            closePinModal();
+            renderTelemetry();
+          };
+          listEl.appendChild(btn);
+        });
+      }
+      document.getElementById('pinTaskModal').classList.add('open');
+    }
+
+    function closePinModal() {
+      document.getElementById('pinTaskModal').classList.remove('open');
+    }
+
+    /* Settings Modal */
+    function openSettingsModal() {
+      document.getElementById('settingThemeSelect').value = state.settings.theme;
+      document.getElementById('settingFontSelect').value = state.settings.fontSize;
+      document.getElementById('settingGoalsInput').value = state.settings.goalsText || '';
+      renderSettingsDomainList();
+      document.getElementById('settingsModal').classList.add('open');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settingsModal').classList.remove('open');
+    }
+
+    function saveSettingsAndClose() {
+      state.settings.goalsText = document.getElementById('settingGoalsInput').value;
+      persistState();
+      closeSettingsModal();
+      renderAll();
+    }
+
+    function changeTheme(theme) {
+      state.settings.theme = theme;
+      document.documentElement.setAttribute('data-theme', theme);
+      persistState();
+    }
+
+    function changeFontSize(size) {
+      state.settings.fontSize = size;
+      document.documentElement.setAttribute('data-font', size);
+      persistState();
+    }
+
+    function renderSettingsDomainList() {
+      const container = document.getElementById('settingsDomainList');
+      container.innerHTML = '';
+      state.domains.forEach(d => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; background: var(--fig-card); border-radius: 6px; border: 1px solid var(--fig-ink-10);';
+        row.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <input type="color" value="${d.color}" style="width: 20px; height: 20px; border: none; border-radius: 50%; cursor: pointer;" onchange="updateDomainColor('${d.id}', this.value)" />
+            <span style="font-weight: 600; font-size: 0.82rem; ${d.archived ? 'text-decoration: line-through; opacity: 0.5;' : ''}">${d.icon} ${escapeHtml(d.name)}</span>
+          </div>
+          <div style="display: flex; gap: 4px;">
+            <button class="btn-grok-sm" style="padding: 2px 6px; font-size: 0.7rem;" onclick="promptRenameDomain('${d.id}')">Đổi tên</button>
+            <button class="btn-grok-sm" style="padding: 2px 6px; font-size: 0.7rem;" onclick="toggleArchiveDomain('${d.id}')">${d.archived ? 'Khôi phục' : 'Lưu trữ'}</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function promptAddNewDomain() {
+      const name = prompt('Nhập tên Bot / Mảng mới:');
+      if (name && name.trim()) {
+        state.domains.push({
+          id: 'd_' + Date.now(),
+          name: name.trim(),
+          role: 'Custom Agent',
+          color: '#' + Math.floor(Math.random()*16777215).toString(16),
+          darkEye: false,
+          icon: '🤖',
+          archived: false,
+          isPriority: false
+        });
+        persistState();
+        renderSettingsDomainList();
+        renderAll();
+      }
+    }
+
+    function promptRenameDomain(id) {
+      const d = state.domains.find(i => i.id === id);
+      if (!d) return;
+      const newName = prompt('Đổi tên:', d.name);
+      if (newName && newName.trim()) {
+        d.name = newName.trim();
+        persistState();
+        renderSettingsDomainList();
+        renderAll();
+      }
+    }
+
+    function updateDomainColor(id, color) {
+      const d = state.domains.find(i => i.id === id);
+      if (d) {
+        d.color = color;
+        persistState();
+        renderAll();
+      }
+    }
+
+    function toggleArchiveDomain(id) {
+      const d = state.domains.find(i => i.id === id);
+      if (d) {
+        d.archived = !d.archived;
+        persistState();
+        renderSettingsDomainList();
+        renderAll();
+      }
+    }
+
+    /* JSON Backup */
+    function exportDataJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+      const a = document.createElement('a');
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", `vincent-grokbot-backup-${new Date().toISOString().split('T')[0]}.json`);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function importDataJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported && imported.tasks && imported.domains) {
+            state = imported;
+            persistState();
+            renderAll();
+            alert('Nhập dữ liệu thành công!');
+            closeSettingsModal();
+          } else alert('Cấu trúc file JSON không hợp lệ.');
+        } catch (err) { alert('Lỗi đọc JSON: ' + err.message); }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetToSampleData() {
+      if (confirm('Khôi phục toàn bộ dữ liệu mẫu ban đầu?')) {
+        state = buildInitialData();
+        persistState();
+        renderAll();
+        closeSettingsModal();
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    /* Confetti Particle Engine */
+    function triggerConfetti() {
+      const canvas = document.getElementById('celebrationCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const particles = [];
+      const colors = ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#2563eb'];
+
+      for (let i = 0; i < 80; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 14,
+          vy: (Math.random() - 0.7) * 14,
+          size: Math.random() * 8 + 3,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          alpha: 1,
+          decay: Math.random() * 0.015 + 0.01
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let active = false;
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.3;
+          p.alpha -= p.decay;
+          if (p.alpha > 0) {
+            active = true;
+            ctx.save();
+            ctx.globalAlpha = Math.max(0, p.alpha);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+            ctx.restore();
+          }
+        });
+        if (active) requestAnimationFrame(animate);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      animate();
+    }
+
+    /* Event Listeners */
+    function attachEventListeners() {
+      document.getElementById('btnOpenAddTask').onclick = () => openAddTaskModal();
+      document.getElementById('btnOpenSettings').onclick = () => openSettingsModal();
+      document.getElementById('btnActionNowPin').onclick = () => openPinModal();
+
+      const btnKanban = document.getElementById('btnToggleKanban');
+      btnKanban.onclick = () => {
+        state.currentView = state.currentView === 'list' ? 'kanban' : 'list';
+        document.getElementById('taskListView').style.display = state.currentView === 'list' ? 'flex' : 'none';
+        document.getElementById('taskKanbanView').className = `kanban-board-grok ${state.currentView === 'kanban' ? 'show' : ''}`;
+        document.getElementById('kanbanLabel').textContent = state.currentView === 'list' ? 'Cột' : 'D/s';
+      };
+
+      document.getElementById('btnToggleSortDomains').onclick = () => {
+        state.sortDomainsMode = state.sortDomainsMode === 'desc' ? 'neglected' : 'desc';
+        document.getElementById('sortDomainLabel').textContent = state.sortDomainsMode === 'desc' ? '% Giảm dần' : 'Bỏ rơi lên đầu';
+        persistState();
+        renderProgressDomains();
+      };
+
+      document.getElementById('btnToggleEmptyDomains').onclick = () => {
+        state.hideEmptyDomains = !state.hideEmptyDomains;
+        document.getElementById('emptyDomainLabel').textContent = state.hideEmptyDomains ? 'Ẩn mảng trống' : 'Hiện cả mảng trống';
+        persistState();
+        renderProgressDomains();
+      };
+
+      document.querySelectorAll('.pill-filter').forEach(chip => {
+        chip.onclick = () => {
+          document.querySelectorAll('.pill-filter').forEach(c => c.classList.remove('active', 'active-danger'));
+          state.filterCategory = chip.dataset.filter;
+          if (state.filterCategory === 'overdue') chip.classList.add('active-danger');
+          else chip.classList.add('active');
+          renderTasks();
+        };
+      });
+
+      document.getElementById('filterDomainSelect').onchange = (e) => {
+        state.filterDomain = e.target.value;
+        state.selectedRosterDomain = e.target.value === 'all' ? null : e.target.value;
+        renderAll();
+      };
+
+      document.getElementById('filterPrioritySelect').onchange = (e) => {
+        state.filterPriority = e.target.value;
+        renderTasks();
+      };
+
+      document.getElementById('btnSaveNotes').onclick = () => {
+        state.quickNotesText = document.getElementById('quickNotesInput').value;
+        persistState();
+        alert('Đã lưu ghi chú!');
+      };
+    }
+
+    function populateFilterDomainSelect() {
+      const select = document.getElementById('filterDomainSelect');
+      select.innerHTML = '<option value="all">Tất cả mảng</option>';
+      getActiveDomains().forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.id;
+        opt.textContent = `${d.icon} ${d.name}`;
+        if (d.id === state.filterDomain) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
+    /* Main Render Orchestration */
+    function renderAll() {
+      document.getElementById('currentDateDisplay').textContent = formatVietnameseDate();
+      document.documentElement.setAttribute('data-theme', state.settings.theme || 'dark');
+      document.documentElement.setAttribute('data-font', state.settings.fontSize || 'large');
+
+      populateFilterDomainSelect();
+      renderBotRoster();
+      renderTelemetry();
+      renderTopThree();
+      renderProgressDomains();
+      renderTasks();
+      renderRoutinesAndSubBlocks();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      attachEventListeners();
+      renderAll();
+    });
+  </script>
+</body>
+</html>
