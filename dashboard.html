@@ -26,12 +26,12 @@
   h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; }
   .sub { color: var(--ink-2); margin-top: 4px; }
   .pills { display: flex; gap: 6px; flex-wrap: wrap; }
-  .pill { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 500; }
+  .pill { background: var(--card); border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 500; }
   .pill:hover { background: var(--ink); color: #fff; }
 
   .grid { display: grid; grid-template-columns: minmax(250px, .9fr) minmax(0, 1.9fr) minmax(270px, 1fr); gap: var(--gap); min-height: 0; }
   .col { display: flex; flex-direction: column; gap: var(--gap); min-height: 0; min-width: 0; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; }
+  .card { background: var(--card); border-radius: var(--r); padding: 18px; }
   .grow { flex: 1; min-height: 0; display: flex; flex-direction: column; }
   .scroll { flex: 1; min-height: 0; overflow-y: auto; margin: 0 -8px; padding: 0 8px; scrollbar-width: thin; }
   .label { font-size: 12px; font-weight: 500; color: var(--ink-3); letter-spacing: .04em; text-transform: uppercase; }
@@ -52,7 +52,7 @@
   .navi-top img { width: 36px; height: 36px; border-radius: 10px; background: var(--chip); }
   .quote { font-size: 15px; font-weight: 500; line-height: 1.4; margin-top: 12px; }
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
-  .stat { border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+  .stat { border-radius: 14px; padding: 10px 12px; }
   .stat b { display: block; font-size: 24px; font-weight: 600; letter-spacing: -0.02em; }
 
   /* Hero */
@@ -72,8 +72,6 @@
   .tabs button[aria-selected="true"] { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
   .row { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto 92px; gap: 12px; align-items: center; padding: 10px 8px; margin: 0 -8px; border-radius: 12px; }
   .row:hover { background: var(--chip); }
-  .row + .row { border-top: 1px solid var(--line); }
-  .row:hover, .row:hover + .row { border-color: transparent; }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
   .dot.Cao { background: var(--ink); } .dot.Vừa { background: var(--ink-3); }
   .row .t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
@@ -92,11 +90,11 @@
 
   /* Upcoming */
   .up { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 10px; align-items: center; padding: 7px 0; }
-  .day { border: 1px solid var(--line); border-radius: 12px; text-align: center; padding: 5px 0; line-height: 1.1; }
+  .day { border-radius: 12px; text-align: center; padding: 5px 0; line-height: 1.1; }
   .day b { display: block; font-size: 16px; font-weight: 600; }
   .day span { font-size: 10px; color: var(--ink-3); text-transform: uppercase; }
   .up .t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; font-size: 13px; }
-  .courses { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+  .courses { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
 
   /* Habits */
   .habits { display: grid; grid-template-columns: 74px repeat(7, 1fr); gap: 5px; align-items: center; font-size: 12px; }
