@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vincent Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f2f2ef; --card: #fff; --ink: #141414; --ink-2: #6e6e6a; --ink-3: #a5a5a0;
+    --line: #ececE8; --chip: #f4f4f1; --dark: #141414; --lime: #d2f56a; --late: #e5484d;
+    --r: 20px; --gap: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 14px/1.45 Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* Fills the Notion embed exactly: 100vh, long lists scroll inside their card. */
+  .app { height: 100vh; min-height: 860px; display: grid; grid-template-rows: auto 1fr; gap: var(--gap); padding: 18px 20px; }
+  header { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+  h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; }
+  .sub { color: var(--ink-2); margin-top: 4px; }
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill { background: var(--card); border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 500; }
+  .pill:hover { background: var(--ink); color: #fff; }
+
+  .grid { display: grid; grid-template-columns: minmax(250px, .9fr) minmax(0, 1.9fr) minmax(270px, 1fr); gap: var(--gap); min-height: 0; }
+  .col { display: flex; flex-direction: column; gap: var(--gap); min-height: 0; min-width: 0; }
+  .card { background: var(--card); border-radius: var(--r); padding: 18px; }
+  .grow { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .scroll { flex: 1; min-height: 0; overflow-y: auto; margin: 0 -8px; padding: 0 8px; scrollbar-width: thin; }
+  .label { font-size: 12px; font-weight: 500; color: var(--ink-3); letter-spacing: .04em; text-transform: uppercase; }
+  .head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .head h2 { font-size: 15px; font-weight: 600; }
+  .muted { color: var(--ink-2); }
+  .faint { color: var(--ink-3); font-size: 12px; }
+  .late { color: var(--late); }
+
+  /* Team */
+  .team { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; text-align: center; }
+  .team img { width: 100%; max-width: 56px; aspect-ratio: 1; border-radius: 14px; background: var(--chip); }
+  .team b { display: block; font-size: 12px; font-weight: 600; margin-top: 4px; }
+  .team span { font-size: 11px; color: var(--ink-3); }
+
+  /* Navi */
+  .navi-top { display: flex; align-items: center; gap: 10px; }
+  .navi-top img { width: 36px; height: 36px; border-radius: 10px; background: var(--chip); }
+  .quote { font-size: 15px; font-weight: 500; line-height: 1.4; margin-top: 12px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
+  .stat { background: var(--chip); border-radius: 14px; padding: 10px 12px; }
+  .stat b { display: block; font-size: 24px; font-weight: 600; letter-spacing: -0.02em; }
+
+  /* Hero */
+  .hero { background: var(--dark); color: #fff; display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: end; }
+  .hero .label { color: var(--lime); }
+  .hero h3 { font-size: 21px; font-weight: 600; letter-spacing: -0.01em; margin: 8px 0 6px; line-height: 1.25; }
+  .hero p { color: #b5b5b0; }
+  .hero-late { display: inline-block; background: rgba(229, 72, 77, .18); color: #ff8a8d; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 500; }
+  .btn { display: inline-block; border-radius: 999px; padding: 10px 18px; font-weight: 600; font-size: 13px; white-space: nowrap; }
+  .btn-lime { background: var(--lime); color: var(--ink); }
+  .btn-ghost { background: rgba(255,255,255,.1); color: #fff; margin-top: 8px; }
+  .hero-actions { display: flex; flex-direction: column; align-items: stretch; text-align: center; }
+
+  /* Tasks */
+  .tabs { display: flex; gap: 4px; background: var(--chip); border-radius: 999px; padding: 3px; }
+  .tabs button { white-space: nowrap; border: 0; background: none; font: inherit; font-size: 12.5px; font-weight: 500; color: var(--ink-2); padding: 5px 12px; border-radius: 999px; cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+  .row { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto 92px; gap: 12px; align-items: center; padding: 10px 8px; margin: 0 -8px; border-radius: 12px; }
+  .row:hover { background: var(--chip); }
+  .row + .row { border-top: 1px solid var(--line); }
+  .row:hover, .row:hover + .row { border-color: transparent; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+  .dot.Cao { background: var(--ink); } .dot.Vừa { background: var(--ink-3); }
+  .row .t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+  .row.done .t { color: var(--ink-3); text-decoration: line-through; }
+  .row small { display: block; color: var(--ink-3); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chip { background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+  .due { text-align: right; font-size: 12.5px; color: var(--ink-2); white-space: nowrap; }
+  .empty { color: var(--ink-3); padding: 24px 0; text-align: center; }
+
+  /* Progress */
+  .bar-row { display: grid; grid-template-columns: 76px 1fr 38px; gap: 10px; align-items: center; padding: 5px 0; font-size: 13px; }
+  .bar { height: 8px; background: var(--chip); border-radius: 99px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--ink); border-radius: 99px; }
+  .bar i.full { background: var(--lime); }
+  .bar-row span:last-child { text-align: right; color: var(--ink-2); }
+
+  /* Upcoming */
+  .up { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 10px; align-items: center; padding: 7px 0; }
+  .day { background: var(--chip); border-radius: 12px; text-align: center; padding: 5px 0; line-height: 1.1; }
+  .day b { display: block; font-size: 16px; font-weight: 600; }
+  .day span { font-size: 10px; color: var(--ink-3); text-transform: uppercase; }
+  .up .t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; font-size: 13px; }
+  .courses { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+
+  /* Habits */
+  .habits { display: grid; grid-template-columns: 74px repeat(7, 1fr); gap: 5px; align-items: center; font-size: 12px; }
+  .habits .h { width: 100%; aspect-ratio: 1; max-width: 18px; justify-self: center; border-radius: 5px; background: var(--chip); }
+  .habits .h.on { background: var(--ink); }
+  .habits .d { text-align: center; color: var(--ink-3); font-size: 11px; }
+
+  .error { margin: auto; text-align: center; color: var(--ink-2); }
+
+  @media (max-width: 1100px) {
+    .app { height: auto; }
+    .grid { grid-template-columns: 1fr 1fr; }
+    .col.mid { grid-column: 1 / -1; order: -1; }
+    .grow { flex: none; } .scroll { max-height: 520px; }
+  }
+  @media (max-width: 700px) {
+    .app { padding: 14px 12px; }
+    .grid { grid-template-columns: minmax(0, 1fr); }
+    .hero { grid-template-columns: 1fr; }
+    .row { grid-template-columns: 10px minmax(0, 1fr) 70px; }
+    .row .chip { display: none; }
+    .head { flex-wrap: wrap; } .tabs { overflow-x: auto; max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app"><p class="error">Đang tải…</p></div>
+
+<script>
+const NOTION = id => `https://www.notion.so/${id}`;
+const TASKS_DB = NOTION('9c78363a15544a37902248e014d53350');
+const ROUTINE_DB = NOTION('8855dc8b981c4e51b7edfcb7380bba80');
+const SHORTCUTS = [
+  ['Agent OS', '40f837d8e2f581eca793cdc185491c48'],
+  ['Memories', '408837d8e2f58136af19ca5eebf1eecc'],
+  ['About', '408837d8e2f581da8633e5fecb45e063'],
+  ['Documents', 'e3063143ca3a45cf9857f8d77e5ca8c9'],
+  ['SATORI', '402837d8e2f58137836aff2c06e5e3d8'],
+];
+const TEAM = [['navi', 'Navi', 'COO'], ['spectre', 'Spectre', 'CEO'], ['felix', 'Felix', 'Maus'], ['zeus', 'Zeus', 'CTO']];
+const GOAL = { text: 'Khách agency đầu tiên, portfolio AI media, Agent OS chạy ổn, đội agency nhỏ.', id: '410837d8e2f5819f8337ce87515d1013' };
+const HABITS = [['water', 'Nước'], ['workout', 'Tập'], ['sleep', 'Ngủ đủ'], ['read', 'Đọc']];
+const TZ = 'Asia/Ho_Chi_Minh';
+const UPCOMING_LIMIT = 7;
+const DAY_MS = 86400000;
+const WEEKDAYS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const dayKey = iso => iso.length === 10 ? iso : new Date(iso).toLocaleDateString('en-CA', { timeZone: TZ });
+const todayKey = () => dayKey(new Date().toISOString());
+const diffDays = (a, b) => Math.round((Date.parse(a) - Date.parse(b)) / DAY_MS);
+const shiftDay = (key, n) => new Date(Date.parse(key) + n * DAY_MS).toISOString().slice(0, 10);
+const ddmm = key => `${key.slice(8, 10)}/${key.slice(5, 7)}`;
+const timeOf = iso => iso.length === 10 ? '' : new Date(iso).toLocaleTimeString('vi-VN', { timeZone: TZ, hour: '2-digit', minute: '2-digit' });
+const deadline = t => t.end ?? t.start;
+const isLate = (t, today) => !t.done && t.start && dayKey(deadline(t)) < today;
+
+function dueLabel(t, today) {
+  if (!t.start) return '';
+  if (isLate(t, today)) return `<span class="late">Trễ ${diffDays(today, dayKey(deadline(t)))} ngày</span>`;
+  if (t.end) return `${ddmm(dayKey(t.start))} → ${ddmm(dayKey(t.end))}`;
+  const d = diffDays(dayKey(t.start), today);
+  const label = d === 0 ? 'Hôm nay' : d === 1 ? 'Ngày mai' : ddmm(dayKey(t.start));
+  return `${label} ${timeOf(t.start)}`.trim();
+}
+
+function streak(tasks, today) {
+  const days = new Set(tasks.filter(t => t.doneAt).map(t => dayKey(t.doneAt)));
+  let day = days.has(today) ? today : shiftDay(today, -1);
+  let n = 0;
+  while (days.has(day)) { n++; day = shiftDay(day, -1); }
+  return n;
+}
+
+function areaProgress(tasks) {
+  const byArea = new Map();
+  for (const t of tasks.filter(t => t.area)) {
+    const a = byArea.get(t.area) ?? { done: 0, total: 0 };
+    byArea.set(t.area, { done: a.done + (t.done ? 1 : 0), total: a.total + 1 });
+  }
+  return [...byArea].sort((a, b) => b[1].total - a[1].total);
+}
+
+const TABS = {
+  open: { name: 'Đang làm', filter: t => !t.done },
+  late: { name: 'Quá hạn', filter: (t, today) => isLate(t, today) },
+  review: { name: 'Chờ duyệt', filter: t => t.review === 'Chờ' },
+  done: { name: 'Xong', filter: t => t.done },
+};
+
+function taskRows(tasks, today) {
+  if (!tasks.length) return '<p class="empty">Không có việc nào ở đây.</p>';
+  return tasks.map(t => `
+    <a class="row${t.done ? ' done' : ''}" href="${esc(t.url)}" target="_blank" rel="noopener" title="${esc(t.title)}">
+      <span class="dot ${esc(t.priority)}" title="Ưu tiên: ${esc(t.priority ?? '—')}"></span>
+      <span><span class="t">${esc(t.title)}</span>${t.review === 'Chờ' && t.proposal ? `<small>Navi: ${esc(t.proposal.replace(/^Đề xuất:\s*/, ''))}</small>` : ''}</span>
+      <span class="chip">${esc(t.area ?? '—')}</span>
+      <span class="due">${dueLabel(t, today)}</span>
+    </a>`).join('');
+}
+
+function sortTasks(tasks) {
+  return [...tasks].sort((a, b) => (a.start ? dayKey(deadline(a)) : '9999').localeCompare(b.start ? dayKey(deadline(b)) : '9999'));
+}
+
+function render(data) {
+  const today = todayKey();
+  const tasks = sortTasks(data.tasks);
+  const navi = data.navi ?? {};
+  const done = tasks.filter(t => t.done).length;
+  const pending = tasks.filter(TABS.review.filter).length;
+  const lateCount = tasks.filter(t => isLate(t, today)).length;
+  const fallbackFocus = tasks.find(t => isLate(t, today) && t.best) ?? tasks.find(t => isLate(t, today)) ?? tasks.find(t => !t.done);
+  const [focusTitle, ...focusRest] = (navi.focus ?? fallbackFocus?.title ?? 'Không còn việc nào').split(' · ');
+  const focusLate = focusRest.join(' · ');
+  const upcoming = tasks.filter(t => !t.done && t.start && dayKey(deadline(t)) >= today).slice(0, UPCOMING_LIMIT);
+  const week = Array.from({ length: 7 }, (_, i) => shiftDay(today, i - 6));
+  const habitByDay = new Map((data.habits ?? []).map(h => [dayKey(h.date), h]));
+  const synced = `${timeOf(data.generatedAt)} ${ddmm(dayKey(data.generatedAt))}`;
+  const dateText = new Date().toLocaleDateString('vi-VN', { timeZone: TZ, weekday: 'long', day: '2-digit', month: '2-digit' });
+
+  document.getElementById('app').innerHTML = `
+    <header>
+      <div>
+        <h1>Chào Vincent.</h1>
+        <p class="sub">${esc(dateText)} · <span class="late">${lateCount} việc quá hạn</span> · Notion cập nhật ${esc(synced)}</p>
+      </div>
+      <nav class="pills">${SHORTCUTS.map(([n, id]) => `<a class="pill" href="${NOTION(id)}" target="_blank" rel="noopener">${n}</a>`).join('')}</nav>
+    </header>
+
+    <div class="grid">
+      <div class="col">
+        <section class="card">
+          <div class="head"><h2>AgentS Team</h2></div>
+          <div class="team">${TEAM.map(([f, n, r]) => `<div><img src="assets/${f}.gif" alt="${n}"><b>${n}</b><span>${r}</span></div>`).join('')}</div>
+        </section>
+        <section class="card">
+          <div class="navi-top"><img src="assets/navi.gif" alt=""><div><h2 style="font-size:15px">Navi · COO</h2><p class="faint">Cập nhật ${esc(navi.updated ?? '—')}</p></div></div>
+          <p class="quote">${esc(navi.quote ?? 'Navi chưa ghi gì hôm nay.')}</p>
+          <div class="stats">
+            <div class="stat"><b>${streak(tasks, today)}</b><span class="faint">Streak</span></div>
+            <div class="stat"><b>${done}/${tasks.length}</b><span class="faint">Xong</span></div>
+            <div class="stat"><b>${pending}</b><span class="faint">Chờ duyệt</span></div>
+          </div>
+        </section>
+        <section class="card">
+          <div class="head"><h2>Thói quen 7 ngày</h2><a class="faint" href="${ROUTINE_DB}" target="_blank" rel="noopener">Ghi ↗</a></div>
+          <div class="habits">
+            <span></span>${week.map(d => `<span class="d">${WEEKDAYS[new Date(d).getUTCDay()]}</span>`).join('')}
+            ${HABITS.map(([k, n]) => `<span class="muted">${n}</span>${week.map(d => `<span class="h${habitByDay.get(d)?.[k] ? ' on' : ''}" title="${ddmm(d)}"></span>`).join('')}`).join('')}
+          </div>
+        </section>
+        <section class="card grow">
+          <p class="label">Mục tiêu 6–12 tháng</p>
+          <p style="margin:8px 0 10px;font-weight:500">${esc(GOAL.text)}</p>
+          <a class="faint" href="${NOTION(GOAL.id)}" target="_blank" rel="noopener">Xem chi tiết ↗</a>
+        </section>
+      </div>
+
+      <div class="col mid">
+        <section class="card hero">
+          <div>
+            <p class="label">Làm ngay</p>
+            <h3>${esc(focusTitle)}</h3>
+            ${focusLate ? `<span class="hero-late">${esc(focusLate)}</span>` : ''}
+            ${navi.firstStep ? `<p style="margin-top:10px">${esc(navi.firstStep)}</p>` : ''}
+          </div>
+          <div class="hero-actions">
+            <a class="btn btn-lime" href="${TASKS_DB}" target="_blank" rel="noopener">Mở TASKS</a>
+            <button class="btn btn-ghost" data-jump="review" style="border:0;cursor:pointer;font:inherit;font-weight:600">${pending} đề xuất chờ duyệt</button>
+          </div>
+        </section>
+        <section class="card grow">
+          <div class="head">
+            <h2>Việc</h2>
+            <div class="tabs" role="tablist">${Object.entries(TABS).map(([k, v]) => `<button role="tab" data-tab="${k}" aria-selected="${k === 'open'}">${v.name} ${tasks.filter(t => v.filter(t, today)).length}</button>`).join('')}</div>
+          </div>
+          <div class="scroll" id="task-list">${taskRows(tasks.filter(t => TABS.open.filter(t, today)), today)}</div>
+        </section>
+      </div>
+
+      <div class="col">
+        <section class="card">
+          <div class="head"><h2>Tiến độ theo mảng</h2></div>
+          ${areaProgress(tasks).map(([area, a]) => {
+            const pct = Math.round(a.done / a.total * 100);
+            return `<div class="bar-row"><span>${esc(area)}</span><div class="bar"><i class="${pct === 100 ? 'full' : ''}" style="width:${pct}%"></i></div><span>${a.done}/${a.total}</span></div>`;
+          }).join('')}
+        </section>
+        <section class="card grow">
+          <div class="head"><h2>Sắp tới</h2><span class="faint">VLU & deadline</span></div>
+          <div class="scroll">${upcoming.length ? upcoming.map(t => {
+            const k = dayKey(deadline(t));
+            return `<a class="up" href="${esc(t.url)}" target="_blank" rel="noopener"><div class="day"><b>${k.slice(8, 10)}</b><span>Th${+k.slice(5, 7)}</span></div><div><div class="t">${esc(t.title)}</div><span class="faint">${esc(t.area ?? '')} · ${dueLabel(t, today)}</span></div></a>`;
+          }).join('') : '<p class="empty">Không có deadline sắp tới.</p>'}</div>
+          <div class="courses">${(data.courses ?? []).map(c => `<span class="chip">${esc(c.name)}</span>`).join('')}</div>
+        </section>
+      </div>
+    </div>`;
+
+  const selectTab = key => {
+    document.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === key));
+    document.getElementById('task-list').innerHTML = taskRows(tasks.filter(t => TABS[key].filter(t, today)), today);
+  };
+  document.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => selectTab(b.dataset.tab)));
+  document.querySelector('[data-jump]').addEventListener('click', () => selectTab('review'));
+}
+
+fetch('data.json', { cache: 'no-cache' })
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(render)
+  .catch(err => {
+    document.getElementById('app').innerHTML = `<p class="error">Không tải được dữ liệu (${esc(err.message)}). Thử tải lại trang.</p>`;
+  });
+</script>
+</body>
+</html>
